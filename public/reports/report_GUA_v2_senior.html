@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>report_GUA_v2_senior.md</title>
+<style>
+@page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+  font-size: 10.5pt; line-height: 1.5; color: #1a1a1a; max-width: 100%;
+}
+h1, h2, h3, h4 { font-family: "DejaVu Sans", Helvetica, Arial, sans-serif; color: #0b2545; line-height: 1.25; }
+h1 { font-size: 20pt; border-bottom: 3px solid #0b2545; padding-bottom: 6px; page-break-before: always; }
+h1:first-of-type { page-break-before: avoid; }
+h2 { font-size: 14.5pt; margin-top: 22px; border-bottom: 1px solid #c9d3e0; padding-bottom: 4px; page-break-after: avoid; }
+h3 { font-size: 12pt; color: #173a5e; page-break-after: avoid; }
+h4 { font-size: 10.5pt; color: #173a5e; }
+p { margin: 7px 0; }
+a { color: #0b2545; text-decoration: none; }
+a.xref { color: #0b66c3; font-weight: 600; text-decoration: none; white-space: nowrap; }
+strong { color: #08203f; }
+hr { border: none; border-top: 1px solid #d0d7de; margin: 16px 0; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.5pt; background: #f3f5f8; padding: 1px 4px; border-radius: 3px; word-break: break-all; }
+pre { background: #0d1117; color: #c9d1d9; padding: 10px 12px; border-radius: 6px; overflow-wrap: anywhere;
+      font-family: "DejaVu Sans Mono", monospace; font-size: 8pt; line-height: 1.45; page-break-inside: avoid; }
+pre code { background: none; color: inherit; padding: 0; font-size: 8pt; }
+blockquote { margin: 10px 0; padding: 8px 14px; background: #f6f8fa; border-left: 4px solid #0b66c3; color: #243b53; }
+blockquote p { margin: 4px 0; }
+/* tables: allow long tables to flow across pages and repeat the header row */
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9pt; page-break-inside: auto; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+th, td { border: 1px solid #c4ccd6; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #0b2545; color: #fff; font-family: "DejaVu Sans", sans-serif; font-size: 8.5pt; }
+tr:nth-child(even) td { background: #f4f7fb; }
+td[align="right"], th[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
+/* figures: image + caption kept together */
+figure { margin: 12px auto; text-align: center; page-break-inside: avoid; }
+img { max-width: 100%; height: auto; display: block; margin: 0 auto; border: 1px solid #d0d7de; border-radius: 4px; }
+figcaption { font-size: 8.5pt; color: #57606a; text-align: center; margin: 5px auto 0; max-width: 92%; }
+ul, ol { margin: 7px 0 7px 4px; padding-left: 20px; }
+li { margin: 3px 0; }
+/* on-screen view only: render as a centred A4 "page" with margins around it,
+   like a PDF/Word document. Does not affect the printed PDF (@page rules above). */
+@media screen {
+  html { background: #e7ebf0; }
+  body {
+    max-width: 210mm; margin: 24px auto; padding: 22mm 18mm;
+    background: #fff; box-shadow: 0 1px 16px rgba(11, 37, 69, 0.15); border-radius: 2px;
+  }
+}
+</style>
+</head><body>
+<h1 id="superfortune-gua-market-manipulability-assessment">Superfortune (GUA): Market Manipulability Assessment</h1>
+<h3 id="an-on-chain-forensic-case-study-in-coordinated-accumulation-synthetic-liquidity-and-perpetual-index-fragility">An On-Chain Forensic Case Study in Coordinated Accumulation, Synthetic Liquidity, and Perpetual-Index Fragility</h3>
+<hr>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Document type</strong></td>
+<td>Independent on-chain risk assessment / investigative case study</td>
+</tr>
+<tr>
+<td><strong>Subject asset</strong></td>
+<td>Superfortune (GUA), BNB Smart Chain (BEP-20)</td>
+</tr>
+<tr>
+<td><strong>Token contract</strong></td>
+<td><code>0xA5C8e1513B6A08334b479fe4D71F1253259469BE</code></td>
+</tr>
+<tr>
+<td><strong>Analysis window</strong></td>
+<td>January 2026 – 10 June 2026</td>
+</tr>
+<tr>
+<td><strong>Part I (alert phase)</strong></td>
+<td>Detection 30 March 2026 · reference price ~$0.42 · snapshots 01 April &amp; 20 May 2026</td>
+</tr>
+<tr>
+<td><strong>Part II (post-incident)</strong></td>
+<td>09–10 June 2026 · reference price ~$0.72</td>
+</tr>
+<tr>
+<td><strong>Primary data sources</strong></td>
+<td>BscScan, Arkham Intelligence, Coinglass, Binance Alpha full-depth feed, PancakeSwap Infinity, DEX analytics</td>
+</tr>
+<tr>
+<td><strong>Author</strong></td>
+<td>Federico Ferrari, <em>Independent On-Chain Investigator / AML Analyst</em></td>
+</tr>
+<tr>
+<td><strong>Report ID</strong></td>
+<td>GUA-2026-001</td>
+</tr>
+<tr>
+<td><strong>Date of issue</strong></td>
+<td>9 July 2026</td>
+</tr>
+<tr>
+<td><strong>Status / version</strong></td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Disclaimer.</strong> This document is independent research and does not constitute financial, legal, or investment advice. Every attribution of multiple addresses to a single controlling entity (referred to as "the operator" or "team-linked entities") is a behavioral inference derived from on-chain patterns, produced under the methodology in <a class="xref" href="#sec-2">§2</a>. Such inferences are not proof of legal identity. The evidentiary status of each finding is stated explicitly throughout, and the analytical constraints are set out in full in <a class="xref" href="#sec-15">§15</a> (Limitations).</p>
+</blockquote>
+<hr>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#exec-summary">Executive Summary (BLUF)</a></li>
+<li><a href="#sec-1">1. Asset Overview</a></li>
+<li><a href="#sec-2">2. Methodology, Attribution &amp; Confidence Standards</a></li>
+<li><a href="#part-i"><strong>PART I: Initial Risk Assessment (Alert Phase)</strong></a><ul>
+<li><a href="#sec-3">3. The Anomaly: Coordinated Buys Pushing the LP Out of Range</a></li>
+<li><a href="#sec-4">4. Preparatory Accumulation: January 2026 Withdrawals</a></li>
+<li><a href="#sec-5">5. Pattern Continuation After the Buy Phase</a></li>
+<li><a href="#sec-6">6. The Only Apparent Liquidity: The Binance Alpha Order Book</a></li>
+<li><a href="#sec-7">7. Holder Distribution and Vesting-Linked Supply</a></li>
+<li><a href="#sec-8">8. Perpetual Index Composition: The Structural Incentive</a></li>
+<li><a href="#sec-9">9. Part I: Conclusions</a></li>
+</ul>
+</li>
+<li><a href="#part-ii"><strong>PART II: Post-Incident Update</strong></a><ul>
+<li><a href="#sec-10">10. The Reported "Hack" and Immediate Aftermath</a></li>
+<li><a href="#sec-11">11. Intensification of Suspicious Activity After the "Hack"</a></li>
+<li><a href="#sec-12">12. The $2M Coordinated Buy (08 June 2026)</a></li>
+<li><a href="#sec-13">13. Order-Book Withdrawal Pattern on Binance Alpha (Intent Unresolved)</a></li>
+<li><a href="#sec-14">14. Part II: Updated Conclusions</a></li>
+</ul>
+</li>
+<li><a href="#sec-15">15. Limitations and Analytical Constraints</a></li>
+<li><a href="#sec-16">16. Recommended Next Steps</a></li>
+<li><a href="#sec-17">17. Regulatory Framing: FATF Red-Flag Mapping</a></li>
+<li><a href="#glossary">Glossary of Defined Terms</a></li>
+<li><a href="#sources">Sources &amp; Standards Referenced</a></li>
+<li><a href="#appendix-a">Appendix A: Wallet Lists</a></li>
+<li><a href="#appendix-b">Appendix B: Exhibit Index</a></li>
+</ul>
+<hr>
+<h2 id="exec-summary">Executive Summary (BLUF)</h2>
+<p><strong>Bottom line.</strong> Superfortune (GUA) exhibits a combination of structural characteristics and observed behaviors that, taken together, are consistent with a deliberately engineered, highly manipulable market rather than an organically traded asset. The durable, on-chain-evidenced objective is sustained control of the token's float; the perpetual-settlement dynamic and the anomalous order-book structure are contributing risk factors, each documented with its evidentiary status delimited.</p>
+<p>The investigation was conducted in two phases and documents five principal findings:</p>
+<ol>
+<li>
+<p><strong>Extreme supply concentration.</strong> The top 10 holders control <strong>~90.3%</strong> of supply (Fig. 3). Most of this concentrated supply sits in two populations: a <strong>proven</strong> team/investor tranche distributed through the project's vesting contract (<a class="xref" href="#sec-7-2">§7.2</a>), and a set of zero-history operational clusters attributed on behavioral grounds (<a class="xref" href="#sec-2-2">§2.2</a>). <strong>If these two answer to one controlling interest, ~94% of the effective circulating supply (~125M tokens) sits under single control</strong>, leaving a genuine open-market float near ~1%, with a further ~5% on CEX wallets (plausibly market-maker inventory). That single-control reading is an assessment, not a proven fact, and no on-chain link ties the two populations together; its basis and evidentiary limits are set out in <a class="xref" href="#sec-7-1">§7.1</a>. Even without merging them, each withholds its own supply from circulation, so the tradeable float is close to zero on any reading.</p>
+</li>
+<li>
+<p><strong>A persistent operational playbook.</strong> Across both phases the same sequence repeats: synchronized CEX withdrawals (LBank, Gate, MEXC, Binance) to previously unfunded ("zero-history") wallets, dormancy, then coordinated market activity, attributed on behavioral grounds (criteria C1–C5, <a class="xref" href="#sec-2-2">§2.2</a>; Figs. A–B). Separately, on-chain graph analysis shows that a large block of dormant supply traces to the project's TokenVesting contract via a Gnosis Safe (<code>0x9412…9e9b</code>), that is, team/investor allocation (<a class="xref" href="#sec-7-2">§7.2</a>, Fig. 4). The two populations are analyzed as distinct groups (<a class="xref" href="#sec-2-2">§2.2</a>).</p>
+</li>
+<li>
+<p><strong>Synthetic, venue-concentrated liquidity and an anomalous order book.</strong> The only apparently liquid on-chain venue (PancakeSwap Infinity CLMM) holds its active liquidity entirely below the prevailing price; following coordinated buy pressure (30 March – 01 April 2026) the price was pushed out of range, leaving no executable ask-side liquidity on-chain (Figs. 1–2). The token's only <em>apparent</em> depth then sat in the Binance Alpha order book as a remote wall of asks (~$2.62M cumulative in the $1.3–$8.1 band, far above spot; Table 1). A later snapshot (Table 2) shows the large walls withdrawn: cumulative ask-side depth across the band collapsed by <strong>~91%</strong> while spot never traded up to them, an <em>observed</em> before/after change in book depth (<a class="xref" href="#sec-6">§6</a>, <a class="xref" href="#sec-13">§13</a>). Whether the placement-and-removal reflects illicit layering or spoofing, or legitimate market-maker repricing, cannot be resolved from the available data and is left explicitly open; only order-level placement and cancellation records would distinguish the two.</p>
+</li>
+<li>
+<p><strong>Post-"hack" behavior inconsistent with a victim.</strong> Following the team's announced security compromise of <strong>28 May 2026</strong> (~2,700 ETH), withdrawals to fresh wallets resumed at the post-incident low, followed on 08 June 2026 by a <strong>~$2M coordinated market buy executed through a 30-wallet cluster</strong> (grouped under the analyst-applied private label "gy"; Figs. 9–10). The incident did not interrupt the accumulation pattern; it amplified it.</p>
+</li>
+<li>
+<p><strong>A perpetual market structurally disproportionate to real liquidity.</strong> A Coinglass snapshot records aggregate open interest of <strong>~$46.5M</strong> (Fig. 7) against genuine executable spot liquidity of only a few hundred thousand dollars: an OI-to-real-liquidity ratio of roughly two orders of magnitude. Combined with a thin, controllable index (<a class="xref" href="#sec-8">§8</a>, Figs. 5–6), this configuration makes the perpetual settlement price comparatively cheap to influence. (Open interest was also observed to decline materially over the window; precise levels and timestamps were not captured, see <a class="xref" href="#sec-8-2">§8.2</a>, and no conclusion in this report depends on that trajectory.)</p>
+</li>
+</ol>
+<p><strong>Overall assessment.</strong> GUA presents a near-zero genuine float, venue-concentrated synthetic liquidity, a perpetual index drawing from controllable spot books, and a documented, repeating coordination playbook. The structure is consistent with an operator <em>positioned</em> to influence the settlement of a derivatives market that is large relative to real spot liquidity, at low capital cost. The report establishes the manipulability of the structure and the control of the float; it does not assert that any specific settlement-targeting trade was executed. That remains an inference about intent, expressly not claimed as fact. Following the declared exploit, coordinated accumulation resumed at the post-incident low rather than ceasing, a sequence more consistent with a managed operation than with the conduct of a genuine third-party theft victim.</p>
+<hr>
+<h2 id="sec-1">1. Asset Overview</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Project name</td>
+<td>Superfortune</td>
+</tr>
+<tr>
+<td>Ticker</td>
+<td>GUA (Binance Alpha listing: <code>ALPHA_483</code>)</td>
+</tr>
+<tr>
+<td>Chain</td>
+<td>BNB Smart Chain (BSC)</td>
+</tr>
+<tr>
+<td>Token contract</td>
+<td><code>0xA5C8e1513B6A08334b479fe4D71F1253259469BE</code></td>
+</tr>
+<tr>
+<td>Total / max supply</td>
+<td>1,000,000,000</td>
+</tr>
+<tr>
+<td>Circulating supply (effective)</td>
+<td><strong>~125,000,000 (12.5%)</strong>, see note</td>
+</tr>
+<tr>
+<td>Circulating supply (CoinGecko)</td>
+<td>45,000,000, <em>understated</em></td>
+</tr>
+<tr>
+<td>Reference price, Part I alert (30 Mar 2026)</td>
+<td>~$0.42</td>
+</tr>
+<tr>
+<td>Reference price, Part II (09–10 Jun 2026)</td>
+<td>~$0.72</td>
+</tr>
+<tr>
+<td>Market cap (effective, 125M × $0.72)</td>
+<td>~$90M</td>
+</tr>
+<tr>
+<td>Fully diluted valuation (FDV)</td>
+<td>~$722.7M</td>
+</tr>
+<tr>
+<td>MCap/FDV (effective)</td>
+<td>~0.125</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note on circulating supply.</strong> CoinGecko reports 45M, but vesting unlocks already executed bring the effective circulating supply to ~125M. All metrics in this report use the effective figure (125M); the discrepancy with the aggregator is disclosed for transparency. The unlock schedule from the TokenVesting contract (<a class="xref" href="#sec-7-2">§7.2</a>) has been verified and reconciles with the ~125M figure.</p>
+</blockquote>
+<h3 id="sec-1-1">1.1 Listing venues</h3>
+<table>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Venues</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spot (CEX)</td>
+<td>MEXC, BYDFi, LBank, Toobit, BitKan, Gate, KCEX, BingX, XT.COM, others</td>
+</tr>
+<tr>
+<td>Spot (DEX)</td>
+<td>PancakeSwap Infinity CLMM (BSC), Uniswap V3 (BSC)</td>
+</tr>
+<tr>
+<td>Perpetual futures</td>
+<td>Binance, Aster, BingX, MEXC, Bitunix, KuCoin, Gate</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="sec-2">2. Methodology, Attribution &amp; Confidence Standards</h2>
+<h3 id="sec-2-1">2.1 Tooling and data</h3>
+<p>On-chain data was collected from BscScan and Arkham Intelligence (transaction graphs, entity clustering, funding-source labeling). Derivatives data (open interest, index composition) was sourced from Coinglass and from the exchanges' own contract specifications. Order-book depth on Binance Alpha was captured from the venue's full-depth feed (<code>ALPHA_483USDT</code>). All exhibits are timestamped; where snapshots from different dates are compared, the dates are stated explicitly. This documentation-first approach follows the evidentiary norms applied by recognized blockchain-intelligence practitioners, under which methodology transparency and source dating are prerequisites for the reliability of any attribution.</p>
+<h3 id="sec-2-2">2.2 Wallet-clustering criteria</h3>
+<p>Attribution of multiple addresses to a single controlling entity requires the convergence of several independent, objectively verifiable signals. No address was clustered on a single criterion alone. The criteria applied are:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterion</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>Common withdrawal source</td>
+<td>Funds originate from the same CEX hot wallet(s) (LBank, Gate, MEXC, Binance) within a narrow time window.</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>Temporal synchronization</td>
+<td>Withdrawals and/or market operations executed within seconds of one another (documented to second-level in Figs. A–B).</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>Size uniformity</td>
+<td>Near-identical or regularly scaled transfer amounts (for example the ~$27.8K and ~$26.8K sweep legs in Figs. A–B).</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>Zero-history / unfunded addresses</td>
+<td>Receiving addresses with no prior transaction history on-chain.</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>Dormancy-then-trigger</td>
+<td>Wallets remain inactive between funding and a synchronized activation event.</td>
+</tr>
+<tr>
+<td>C6</td>
+<td>Direct vesting transfers</td>
+<td>Holdings derived from direct transfers traceable to the project's TokenVesting contract via the Gnosis Safe (<a class="xref" href="#sec-7-2">§7.2</a>).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Two distinct wallet populations.</strong> This report separates the involved wallets into two primary groups, which it does not merge:
+1. <strong>Team/investor-linked cluster</strong>: addresses connected to the team or investors by direct vesting transfers from the TokenVesting contract via the Gnosis Safe (criterion C6; <a class="xref" href="#sec-7-2">§7.2</a>).
+2. <strong>Zero-history operational clusters</strong>: addresses characterized by synchronized CEX withdrawals to wallets with no prior history (criteria C1–C5). This group encompasses two sub-patterns: wallets that withdrew GUA directly from CEXs, and wallets that withdrew USDT from CEXs to execute on-chain market buys of GUA.</p>
+</blockquote>
+<h3 id="sec-2-3">2.3 Confidence and estimative-probability lexicon</h3>
+<p>To keep evidence and inference clearly separated, the report uses a fixed three-tier vocabulary, aligned with established analytic-tradecraft standards (ICD 203 / words of estimative probability):</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Term used</th>
+<th>Meaning</th>
+<th>Basis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fact</strong></td>
+<td><strong>"observed"</strong></td>
+<td>Directly verifiable on-chain or order-book data</td>
+<td>Block explorer / full-depth feed / exchange spec</td>
+</tr>
+<tr>
+<td><strong>Attribution</strong></td>
+<td><strong>"attributed"</strong></td>
+<td>Clustering conclusion under <a class="xref" href="#sec-2-2">§2.2</a></td>
+<td>High confidence where ≥3 criteria converge</td>
+</tr>
+<tr>
+<td><strong>Judgment</strong></td>
+<td><strong>"assessed"</strong></td>
+<td>Analytical judgment about intent or coordination</td>
+<td>Inferential; remains an estimate, not a fact</td>
+</tr>
+</tbody>
+</table>
+<p>Where a probabilistic qualifier is used ("likely", "more consistent with", "plausibly"), it denotes an estimative judgment, not a demonstrated fact.</p>
+<h3 id="sec-2-4">2.4 Standard of proof and evidentiary scope</h3>
+<p>This is an intelligence-grade assessment, not a legal determination. It documents structural facts and behavioral patterns to the standard of <em>balance of on-chain evidence</em>; it does not purport to meet any criminal or civil burden of proof, nor to identify natural or legal persons. Findings that rest on inference are labeled "assessed" and are accompanied by the specific data that would be required to upgrade them.</p>
+<hr>
+<h1 id="part-i">PART I: Initial Risk Assessment (Alert Phase)</h1>
+<blockquote>
+<p><strong>Detection date:</strong> 30 March 2026 · <strong>Snapshot dates:</strong> 01 April 2026 and 20 May 2026 · <strong>Reference price at alert:</strong> ~$0.42</p>
+</blockquote>
+<h2 id="sec-3">3. The Anomaly: Coordinated Buys Pushing the LP Out of Range</h2>
+<p>On <strong>30 March 2026 at 09:06 UTC</strong>, monitoring flagged a series of coordinated purchases of GUA. Multiple wallets, attributed to a single entity under the <a class="xref" href="#sec-2-2">§2.2</a> methodology, began buying the token in a synchronized fashion.</p>
+<p><strong>Sample of involved wallets:</strong></p>
+<pre><code>0xaf7fc4b919a0969949e2062ca8721ff4ce955ead
+0x21747a7fa92c2d190048629ed5cae40dc2f608ea
+0xb1e32bc169edbca755b4e67d9761163612fa1f1e
+0xc6818876c4b6b520037ef5b2a6383fb81687746e
+0xebdca2f5dbde63f4bdec86168f00ee83e995f324
++ others matching the same behavioral pattern
+</code></pre>
+<p><strong>Observed effect.</strong> The buy flow pushed the price out of the active range of the only apparently liquid on-chain pool (PancakeSwap Infinity CLMM). The pool presents a nominally large TVL, but its concentrated-liquidity positions sit entirely below ~$0.40; above that threshold there is no executable liquidity (Figs. 1–2).</p>
+<p><strong>Observed operational cycle.</strong> Across the cluster the same closed loop is observed end-to-end, consistent with criteria C1–C5:</p>
+<ol>
+<li><strong>Coordinated funding.</strong> The wallets are funded in the same time window (synchronized CEX withdrawals to zero-history/dormant addresses).</li>
+<li><strong>Uniform behavior.</strong> Each wallet then behaves identically, with no idiosyncratic activity of its own.</li>
+<li><strong>Coordinated buying to break the range.</strong> All wallets buy GUA into the same pool, collectively pushing the price out of the LP's active range and exhausting available on-chain liquidity.</li>
+<li><strong>Synchronized USDT sweep back to LBank.</strong> Once the swaps complete, the residual USDT in each wallet is sent back to per-wallet LBank deposit addresses, simultaneously, closing the loop and returning value to the originating venue.</li>
+</ol>
+<p><strong>Exhibit: criteria C2/C3 in practice.</strong> The figures below are a representative instance of the recurring sweep cycle, captured <strong>02 May 2026</strong> (not the 30 Mar–01 Apr event itself; the same closed loop repeats throughout the operation). After the wallets complete their swaps and push the LP out of range, the leftover USDT is returned to LBank. The two legs were executed 20 seconds apart by two distinct cluster wallets, for near-identical amounts (~$27.8K and ~$26.8K USDT):</p>
+<figure><img alt="Synchronized USDT sweep 1, 02 May 2026 02:34:21, minus 27,781.13 USDT" src="assets/figA_usdt_sweep_1.png"><figcaption>Fig. A. Cluster wallet <code>0xaccd…c3be</code> sends −27,781.13 USDT to <code>0x5b7a…9794</code> (attributed LBank deposit address; the entity label is not visible in the capture), 02 May 2026 02:34:21 UTC: the residual-USDT leg of the cycle (<a class="xref" href="#sec-3">§3</a>, step 4).</figcaption></figure>
+<figure><img alt="Synchronized USDT sweep 2, 02 May 2026 02:34:41, minus 26,797.96 USDT" src="assets/figB_usdt_sweep_2.png"><figcaption>Fig. B. Cluster wallet <code>0x554e…0dd1</code> sends −26,797.96 USDT to <code>0x8780…8a88</code> (attributed LBank deposit address; label not visible in the capture), 02 May 2026 02:34:41 UTC, 20 seconds after Fig. A and of near-identical size. Second-level synchronization across distinct wallets satisfies criteria C2/C3.</figcaption></figure>
+<p><strong>Event timeline:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Timestamp (UTC)</th>
+<th>Event</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>23 Mar 2026 17:37:04</td>
+<td>Preparatory CEX withdrawals</td>
+</tr>
+<tr>
+<td>30 Mar 2026 09:06:10</td>
+<td>Coordinated buying begins</td>
+</tr>
+<tr>
+<td>01 Apr 2026 06:45:12</td>
+<td>Buying ends; price out of LP range</td>
+</tr>
+</tbody>
+</table>
+<figure><img alt="PancakeSwap Infinity CLMM pool composition" src="assets/fig01_pool_composition.png"><figcaption>Fig. 1. PancakeSwap Infinity CLMM pool composition: 1,085,101.32 GUA (~$1.67M) + 1,969,006.42 USDT (~$1.96M). Fee tier 0.01%. Snapshot: 20 May 2026.</figcaption></figure>
+<figure><img alt="CLMM active liquidity distribution by price" src="assets/fig02_clmm_liquidity.png"><figcaption>Fig. 2. Active liquidity distribution, USDT/GUA. All liquidity is concentrated below ~$0.40; the prevailing price (red dashed line, $0.43913) sits above the entire liquidity range, that is, zero on-chain ask-side depth above market. Snapshot basis: 01 Apr 2026 (capture file dated 20 May 2026).</figcaption></figure>
+<p><strong>Interpretation (assessed).</strong> A pool whose entire depth sits below market price provides exit liquidity to sellers but offers no resistance to upward price movement. Once out of range, the marginal on-chain cost of marking the price higher approaches zero, a precondition for the index dynamics in <a class="xref" href="#sec-8">§8</a>.</p>
+<hr>
+<h2 id="sec-4">4. Preparatory Accumulation: January 2026 Withdrawals to Zero-History Wallets</h2>
+<p>Tracing flows backward from the March buys reveals the operation was staged months in advance. Beginning in early January 2026, withdrawals from CEXs were directed to previously unfunded wallets that then simply remained dormant (criteria C1, C4, C5). The first identified withdrawals originate from LBank, with destination addresses showing no prior transaction history.</p>
+<p><strong>January 2026 withdrawals to zero-history wallets (representative sample).</strong> The receiving addresses had no prior history at funding and remained dormant. This is a sample; the full set (52 addresses) is in Appendix A.1.</p>
+<table>
+<thead>
+<tr>
+<th>Date/time (UTC)</th>
+<th>Source CEX</th>
+<th>Destination wallet</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 Jan 2026</td>
+<td>LBank</td>
+<td><code>0x273b34db…ae4f875</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>10 Jan 2026</td>
+<td>LBank</td>
+<td><code>0x79a262de…6a02395</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>10 Jan 2026</td>
+<td>LBank</td>
+<td><code>0xfe61a988…5886073</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>10 Jan 2026</td>
+<td>LBank</td>
+<td><code>0x4daec481…a7b47b4</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>10 Jan 2026</td>
+<td>LBank</td>
+<td><code>0x623ff409…a539196c</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td><em>(full 52-address list in Appendix A.1)</em></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation (assessed).</strong> This is consistent with preparatory accumulation and source-of-funds obfuscation: distributing funds across many "clean" addresses months before the operation masks the common origin and defeats naive single-hop attribution. The pattern corresponds to recognized virtual-asset red-flag typologies (structuring; use of newly created addresses; see <a class="xref" href="#sec-17">§17</a>).</p>
+<hr>
+<h2 id="sec-5">5. Pattern Continuation After the Buy Phase</h2>
+<p>Within days of the buy phase ending (01 April 2026), a further wave of CEX withdrawals to zero-history/dormant wallets was observed, this time from LBank and Gate, following the identical structuring pattern: no-history addresses, activated in blocks. The assessed objective is continued draining and repositioning of residual liquidity while maintaining control of the float.</p>
+<p><strong>Post-buy withdrawals (early April 2026) to zero-history/dormant wallets (full sample):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Date/time (UTC)</th>
+<th>Source CEX</th>
+<th>Destination wallet</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0xeec26ede…1e9601f</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0xee0a2d89…5001119</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0x68dd7697…9ead3d8</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0x6c30312b…c90d307</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0x7fdf52f7…1e0babc</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0xb3735546…3131cf9</code></td>
+<td>zero-history wallet</td>
+</tr>
+<tr>
+<td>Apr 2026</td>
+<td>LBank / Gate</td>
+<td><code>0xb6a23ad1…3dd2195</code></td>
+<td>zero-history wallet</td>
+</tr>
+</tbody>
+</table>
+<p><em>(Full 42-character addresses for this group are listed in Appendix A.2.)</em></p>
+<hr>
+<h2 id="sec-6">6. The Only Apparent Liquidity: The Binance Alpha Order Book</h2>
+<p>As of <strong>20 May 2026</strong>, with GUA trading at ~$0.90, the token's only <em>apparent</em> liquidity was not on-chain (the LP being out of range) but in the Binance Alpha order book, in the form of limit sell orders (asks) stacked far above the prevailing price. The full ask side held ~$2.62M cumulative across the $1.3–$8.1 band, all above spot, concentrated in a few remote blocks rather than adjacent to the market price: most notably a single ~$860K clip at $4.3–$4.4 (≈5× spot) and a ~$577K clip at $2.3–$2.4. This was a remote, top-heavy wall, not tradable support. The complete ask-side depth captured from the venue's full-depth feed is reproduced below.</p>
+<p><strong>Table 1: Binance Alpha full-depth ask side, "before" state (20 May 2026; snapshot <code>lastUpdateId</code> 58954977740).</strong></p>
+<table>
+<thead>
+<tr>
+<th>Price Range ($)</th>
+<th style="text-align: right;">USD Value in Range</th>
+<th style="text-align: right;">Cumulative USD Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.3 – 1.4</td>
+<td style="text-align: right;">$12,707.53</td>
+<td style="text-align: right;">$12,707.53</td>
+</tr>
+<tr>
+<td>1.4 – 1.5</td>
+<td style="text-align: right;">$104,979.21</td>
+<td style="text-align: right;">$117,686.74</td>
+</tr>
+<tr>
+<td>1.5 – 1.6</td>
+<td style="text-align: right;">$192,727.99</td>
+<td style="text-align: right;">$310,414.73</td>
+</tr>
+<tr>
+<td>1.6 – 1.7</td>
+<td style="text-align: right;">$58,794.08</td>
+<td style="text-align: right;">$369,208.82</td>
+</tr>
+<tr>
+<td>1.7 – 1.8</td>
+<td style="text-align: right;">$9,986.45</td>
+<td style="text-align: right;">$379,195.26</td>
+</tr>
+<tr>
+<td>1.8 – 1.9</td>
+<td style="text-align: right;">$149,970.22</td>
+<td style="text-align: right;">$529,165.48</td>
+</tr>
+<tr>
+<td>1.9 – 2.0</td>
+<td style="text-align: right;">$68,234.00</td>
+<td style="text-align: right;">$597,399.48</td>
+</tr>
+<tr>
+<td>2.0 – 2.1</td>
+<td style="text-align: right;">$20,258.76</td>
+<td style="text-align: right;">$617,658.24</td>
+</tr>
+<tr>
+<td>2.1 – 2.2</td>
+<td style="text-align: right;">$57,353.29</td>
+<td style="text-align: right;">$675,011.54</td>
+</tr>
+<tr>
+<td>2.2 – 2.3</td>
+<td style="text-align: right;">$39,212.25</td>
+<td style="text-align: right;">$714,223.79</td>
+</tr>
+<tr>
+<td>2.3 – 2.4</td>
+<td style="text-align: right;">$577,445.99</td>
+<td style="text-align: right;">$1,291,669.77</td>
+</tr>
+<tr>
+<td>2.5 – 2.6</td>
+<td style="text-align: right;">$50,086.76</td>
+<td style="text-align: right;">$1,341,756.53</td>
+</tr>
+<tr>
+<td>2.6 – 2.7</td>
+<td style="text-align: right;">$37,222.35</td>
+<td style="text-align: right;">$1,378,978.88</td>
+</tr>
+<tr>
+<td>2.7 – 2.8</td>
+<td style="text-align: right;">$32,005.47</td>
+<td style="text-align: right;">$1,410,984.35</td>
+</tr>
+<tr>
+<td>2.8 – 2.9</td>
+<td style="text-align: right;">$12,328.80</td>
+<td style="text-align: right;">$1,423,313.15</td>
+</tr>
+<tr>
+<td>2.9 – 3.0</td>
+<td style="text-align: right;">$13,269.39</td>
+<td style="text-align: right;">$1,436,582.54</td>
+</tr>
+<tr>
+<td>3.0 – 3.1</td>
+<td style="text-align: right;">$43,798.29</td>
+<td style="text-align: right;">$1,480,380.83</td>
+</tr>
+<tr>
+<td>3.1 – 3.2</td>
+<td style="text-align: right;">$5,713.45</td>
+<td style="text-align: right;">$1,486,094.28</td>
+</tr>
+<tr>
+<td>3.2 – 3.3</td>
+<td style="text-align: right;">$100.86</td>
+<td style="text-align: right;">$1,486,195.15</td>
+</tr>
+<tr>
+<td>3.3 – 3.4</td>
+<td style="text-align: right;">$20.00</td>
+<td style="text-align: right;">$1,486,215.15</td>
+</tr>
+<tr>
+<td>3.4 – 3.5</td>
+<td style="text-align: right;">$34,306.25</td>
+<td style="text-align: right;">$1,520,521.39</td>
+</tr>
+<tr>
+<td>3.5 – 3.6</td>
+<td style="text-align: right;">$12,619.25</td>
+<td style="text-align: right;">$1,533,140.64</td>
+</tr>
+<tr>
+<td>3.6 – 3.7</td>
+<td style="text-align: right;">$29,640.61</td>
+<td style="text-align: right;">$1,562,781.25</td>
+</tr>
+<tr>
+<td>3.7 – 3.8</td>
+<td style="text-align: right;">$7,961.38</td>
+<td style="text-align: right;">$1,570,742.64</td>
+</tr>
+<tr>
+<td>3.9 – 4.0</td>
+<td style="text-align: right;">$19.97</td>
+<td style="text-align: right;">$1,570,762.60</td>
+</tr>
+<tr>
+<td>4.0 – 4.1</td>
+<td style="text-align: right;">$27,917.16</td>
+<td style="text-align: right;">$1,598,679.76</td>
+</tr>
+<tr>
+<td>4.1 – 4.2</td>
+<td style="text-align: right;">$41,357.07</td>
+<td style="text-align: right;">$1,640,036.83</td>
+</tr>
+<tr>
+<td>4.2 – 4.3</td>
+<td style="text-align: right;">$2,287.61</td>
+<td style="text-align: right;">$1,642,324.44</td>
+</tr>
+<tr>
+<td>4.3 – 4.4</td>
+<td style="text-align: right;">$860,767.02</td>
+<td style="text-align: right;">$2,503,091.47</td>
+</tr>
+<tr>
+<td>4.5 – 4.6</td>
+<td style="text-align: right;">$99.95</td>
+<td style="text-align: right;">$2,503,191.41</td>
+</tr>
+<tr>
+<td>4.9 – 5.0</td>
+<td style="text-align: right;">$297.00</td>
+<td style="text-align: right;">$2,503,488.41</td>
+</tr>
+<tr>
+<td>5.0 – 5.1</td>
+<td style="text-align: right;">$14,279.25</td>
+<td style="text-align: right;">$2,517,767.66</td>
+</tr>
+<tr>
+<td>5.7 – 5.8</td>
+<td style="text-align: right;">$3.64</td>
+<td style="text-align: right;">$2,517,771.30</td>
+</tr>
+<tr>
+<td>5.9 – 6.0</td>
+<td style="text-align: right;">$1,537.00</td>
+<td style="text-align: right;">$2,519,308.30</td>
+</tr>
+<tr>
+<td>6.0 – 6.1</td>
+<td style="text-align: right;">$89,583.24</td>
+<td style="text-align: right;">$2,608,891.54</td>
+</tr>
+<tr>
+<td>6.3 – 6.4</td>
+<td style="text-align: right;">$173.75</td>
+<td style="text-align: right;">$2,609,065.29</td>
+</tr>
+<tr>
+<td>6.9 – 7.0</td>
+<td style="text-align: right;">$417.00</td>
+<td style="text-align: right;">$2,609,482.29</td>
+</tr>
+<tr>
+<td>7.0 – 7.1</td>
+<td style="text-align: right;">$5,434.31</td>
+<td style="text-align: right;">$2,614,916.60</td>
+</tr>
+<tr>
+<td>7.5 – 7.6</td>
+<td style="text-align: right;">$787.50</td>
+<td style="text-align: right;">$2,615,704.10</td>
+</tr>
+<tr>
+<td>8.0 – 8.1</td>
+<td style="text-align: right;">$14.16</td>
+<td style="text-align: right;">$2,615,718.26</td>
+</tr>
+</tbody>
+</table>
+<p><em>Values reproduced verbatim from the venue's full-depth feed; the cumulative column is as reported and may differ from an exact running sum by a few cents due to per-level rounding.</em></p>
+<blockquote>
+<p><strong>Flag for Part II.</strong> This ask wall was subsequently withdrawn: a later full-depth snapshot (Table 2, <a class="xref" href="#sec-13">§13</a>) shows cumulative ask-side depth across the band collapsing ~91% (≈$2.62M → ≈$0.24M), with the dominant ~$860K and ~$577K blocks removed, while spot never traded up into the $1–$5 band. The placement-and-removal is a documented fact. What the data cannot establish is <em>intent</em>: whether the orders were illicit layering or spoofing, or legitimate market-maker inventory that was repriced or pulled. That distinction is carried to <a class="xref" href="#sec-13">§13</a> and left explicitly unresolved.</p>
+</blockquote>
+<hr>
+<h2 id="sec-7">7. Holder Distribution and Vesting-Linked Supply</h2>
+<h3 id="sec-7-1">7.1 Concentration</h3>
+<p>The supply distribution is extremely concentrated:</p>
+<ul>
+<li><strong>Top 10 holders ≈ 90.3%</strong> of supply (Fig. 3).</li>
+<li><strong>Top 40 holders ≈ 95%</strong>, of which ~5% sits on CEX wallets.</li>
+<li><strong>A tranche of dormant holders</strong> (previously ranking ~20–40; ranks shift dynamically): dormant addresses holding supply derived from direct transfers from the TokenVesting contract via the Gnosis Safe, that is, team/investor allocation (criterion C6; <a class="xref" href="#sec-7-2">§7.2</a>).</li>
+<li><strong>The operational zero-history clusters</strong> (extending down the holder ranks): addresses funded via CEX withdrawals with matching timestamps and sizes, followed by synchronized activity. Incorporates both direct GUA withdrawals and USDT withdrawals later used to buy GUA on-chain. Attributed behaviorally (C1–C5).</li>
+</ul>
+<p><strong>Assessed conclusion.</strong> The ~94% figure is conditional, not proven. <strong>If the vesting-linked team/investor holders and the zero-history operational clusters answer to one controlling interest, then ~94% of the effective circulating supply is under single control</strong>, with a further ~5% on CEX wallets (plausibly market-maker inventory) and a residual open-market float near ~1%. The report does not treat the two populations as proven to be the same hand: there is no on-chain funding edge between them (<a class="xref" href="#sec-7-2">§7.2</a>). The single-control reading rests on a behavioral inference, that independent and unrelated actors would not each acquire large blocks of a token and then leave them dormant in a synchronized accumulation pattern, so the coherent explanation is a single coordinating interest; this is assessed as highly probable but is expressly not demonstrated. The structural takeaway does not depend on resolving that question: whether the holdings answer to one hand or several, each population keeps its supply out of circulation, so the effective free float available to the open market is near zero. The float is, in practice, paralyzed.</p>
+<p><strong>Decomposition of the controlled-supply estimate (by evidentiary basis).</strong> The two tranches carry different evidentiary weight, and their internal split is left unquantified, since it depends on holder-level state no longer reliably reconstructable:</p>
+<table>
+<thead>
+<tr>
+<th>Tranche</th>
+<th style="text-align: right;">Share of effective supply</th>
+<th>Evidentiary basis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vesting-linked dormant holders</td>
+<td style="text-align: right;"><em>(not separately quantified)</em></td>
+<td><strong>Proven</strong>: direct TokenVesting → Gnosis Safe transfers (C6; <a class="xref" href="#sec-7-2">§7.2</a>)</td>
+</tr>
+<tr>
+<td>Zero-history operational clusters</td>
+<td style="text-align: right;"><em>(not separately quantified)</em></td>
+<td><strong>Behavioral</strong> attribution only (C1–C5; <a class="xref" href="#sec-2-2">§2.2</a>)</td>
+</tr>
+<tr>
+<td><strong>Combined, if one controlling interest</strong></td>
+<td style="text-align: right;"><strong>~94%</strong></td>
+<td>Conditional aggregate: proven tranche + inferred tranche, with common control inferred</td>
+</tr>
+<tr>
+<td>CEX-held wallets</td>
+<td style="text-align: right;">~5%</td>
+<td><strong>Unverifiable</strong>; plausibly market-maker inventory</td>
+</tr>
+<tr>
+<td>Genuine open-market float</td>
+<td style="text-align: right;">~1% (residual)</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>On the internal split.</strong> The share held by each of the two team-linked tranches (proven-vesting versus behaviorally-clustered) was not fixed at snapshot time, and holder rankings and balances have shifted enough since that a faithful reconstruction from current on-chain state is no longer reliable. What carries the analysis is the aggregate controlled share (~94%) and the corresponding near-zero free float (~1%), which hold regardless of how the ~94% divides between the two tranches. The split is therefore left unquantified rather than estimated.</p>
+</blockquote>
+<figure><img alt="Holder distribution, Top 10 equals 90.29 percent" src="assets/fig04_holders.png"><figcaption>Fig. 3. Holder distribution. Top 10 holders: 90.29%; all others combined: 9.71%. Snapshot: 09 Jun 2026.</figcaption></figure>
+<h3 id="sec-7-2">7.2 Vesting-linked dormant supply</h3>
+<p>Graph analysis of the holder set shows that a substantial block of supply held by prominent mid-tier holders traces back to the project's TokenVesting contract through a central Gnosis Safe Proxy (<code>0x9412…9e9b</code>). This identifies that tranche of supply as team/investor allocation held in dormant addresses:</p>
+<figure><img alt="Vesting to Gnosis Safe 0x941 to dormant holder set" src="assets/fig05_vesting_safe.png"><figcaption>Fig. 4. Arkham funding graph. The Gnosis Safe Proxy (<code>0x9412…9e9b</code>) is fed by the TokenVesting contract (green edges) and fans out (red edges) to a set of dormant holder addresses. The graph establishes that this supply originates from team/investor vesting via the Safe. It does not show a link from the Safe to the operational CEX-withdrawal wallets (LBank/Gate); those are a separate population (<a class="xref" href="#sec-2-2">§2.2</a>). Capture: 09 Jun 2026.</figcaption></figure>
+<blockquote>
+<p><strong>Scope of what this exhibit proves, and what it does not.</strong> Fig. 4 demonstrates one specific point: a concentrated tranche of supply is team/investor allocation distributed via the vesting contract and the Gnosis Safe, held in dormant addresses. It does not establish any direct on-chain funding link between the Safe/vesting infrastructure and the operational "zero-history" wallets that execute the CEX-funded buys (<a class="xref" href="#sec-3">§3</a>–<a class="xref" href="#sec-5">§5</a>). Those wallets are funded directly from CEX hot wallets and have no demonstrated on-chain edge to the Safe; their attribution rests on behavioral criteria C1–C5 alone. The two populations are assessed as plausibly one controlling interest, but this report does not claim a proven funding bridge between them.</p>
+</blockquote>
+<p><strong>Significance.</strong> The exhibit confirms that a large, identifiable tranche of supply is structurally team/investor-controlled via vesting, which, combined with top-10 concentration and the behaviorally-clustered operational wallets, supports the ~94% controlled-supply estimate (<a class="xref" href="#sec-7-1">§7.1</a>). It does not by itself upgrade the attribution of the operational wallets, which remains behavioral.</p>
+<hr>
+<h2 id="sec-8">8. Perpetual Index Composition: The Structural Incentive</h2>
+<p>This section explains why an actor would have an incentive to drain spot liquidity and police the order books. The answer lies in the relationship between perpetual open interest and the thinness of the spot venues that determine settlement.</p>
+<h3 id="sec-8-1">8.1 Index architecture</h3>
+<ul>
+<li><strong>Binance / Aster perps.</strong> At the time of the initial analysis the index comprised ~53% Binance Alpha + ~30% MEXC (~83% across two thin spot venues), plus ~15% Binance-futures self-reference. Aster shares the same index basis, making Binance and Aster effectively equivalent for index purposes. <em>Index weightings are dynamic and exchange-adjusted; the figures are the observed composition at the snapshot date (Fig. 5) and may have changed since.</em></li>
+<li><strong>BingX perps.</strong> Index sourced from Gate alone (Fig. 6).</li>
+</ul>
+<figure><img alt="Index price-source composition by venue" src="assets/fig06_index_composition.png"><figcaption>Fig. 5. Index composition: Binance_alpha 53.03%, Mxc 30.30%, Binance_future 15.15%, Gate.io 1.52%. Snapshot: 20 May 2026.</figcaption></figure>
+<figure><img alt="BingX perpetual contract spec, index price source GATE" src="assets/fig07_bingx_spec.png"><figcaption>Fig. 6. Contract specification (GUAUSDT perpetual): settlement currency USDT, Source of Index Price: GATE. Capture: 20 May 2026.</figcaption></figure>
+<h3 id="sec-8-2">8.2 Open interest: snapshot, trajectory, and reconciliation</h3>
+<p><strong>Open interest by exchange (Coinglass snapshot):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Exchange</th>
+<th>Open interest (USD)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Binance</td>
+<td>~$29.58M</td>
+</tr>
+<tr>
+<td>Aster</td>
+<td>~$10.03M</td>
+</tr>
+<tr>
+<td>BingX</td>
+<td>$2.31M</td>
+</tr>
+<tr>
+<td>MEXC</td>
+<td>$1.93M</td>
+</tr>
+<tr>
+<td>Bitunix</td>
+<td>$1.12M</td>
+</tr>
+<tr>
+<td>KuCoin</td>
+<td>$799.19K</td>
+</tr>
+<tr>
+<td>Gate</td>
+<td>$704.17K</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~$46.5M</strong> <em>(displayed per-exchange values sum to ≈$46.47M)</em></td>
+</tr>
+</tbody>
+</table>
+<figure><img alt="Open interest by exchange" src="assets/fig08_open_interest.png"><figcaption>Fig. 7. Exchange GUA open interest (USD), Coinglass. Binance $29.58M and Aster $10.03M dominate (~$39.6M combined). Snapshot: 20 May 2026.</figcaption></figure>
+<p><strong>The point rests on the ratio.</strong> The figure that matters for the manipulability thesis is the disproportion between aggregate open interest (~$46.5M, observed) and genuine executable spot liquidity (a few hundred thousand dollars): roughly two orders of magnitude. That ratio alone establishes that the derivatives market is large relative to the spot venues that determine its settlement, which is the structural precondition discussed in <a class="xref" href="#sec-8-3">§8.3</a>.</p>
+<blockquote>
+<p><strong>Monitoring observation: OI declined ahead of the announced incident (not used as evidence).</strong> During the analysis period, aggregate OI was observed to fall materially from earlier levels, and the decline appeared concentrated in the run-up to the 28 May 2026 announced compromise rather than spread evenly across the window. The timing is noted for completeness: a run-down in leveraged exposure immediately before an adverse event is worth recording, but it is set down as an observation, not as evidence. Precise levels and timestamps were not captured, because the dated historical OI series requires a paid data service (for example the Coinglass historical API) that was not available; without that series the apparent coincidence in timing cannot be pinned down, and no conclusion in this report, in particular no inference of pre-incident "foreknowledge" or coordinated de-risking, rests on it. Confirming the association would require reconstructing the dated series (<a class="xref" href="#sec-16">§16</a>).</p>
+</blockquote>
+<h3 id="sec-8-3">8.3 The mechanism (assessed)</h3>
+<p>On the basis of the observed snapshot:</p>
+<ol>
+<li>The perp index draws from thin spot venues (BingX → Gate; Binance/Aster → Alpha + MEXC).</li>
+<li>Those perps carried aggregate OI of ~$46.5M (observed, snapshot).</li>
+<li>Real spot liquidity outside the internal book was only a few hundred thousand dollars.</li>
+<li>The resulting OI-to-real-liquidity ratio is roughly two orders of magnitude. <em>(A single defensible "real executable liquidity" denominator and the exact multiple are left to be pinned, see <a class="xref" href="#sec-16">§16</a>; the qualitative claim does not depend on the precise figure.)</em></li>
+</ol>
+<p>In this configuration, an actor controlling supply and spot liquidity <em>could</em> move the price on an index venue with limited capital, shift the perp settlement price, and act against disproportionate OI, while draining residual on-chain LP through the coordinated wallet network.</p>
+<p><strong>On its own, this speaks to capability.</strong> The mechanism places the operator in a position to influence settlement at low cost; it stops short of showing that any settlement-targeting trade was actually placed. What the on-chain record does establish, and sustains across the window, is control of the float (<a class="xref" href="#sec-14">§14</a>), with the perpetual dynamic sitting alongside it as a contributing structural risk.</p>
+<p><strong>Estimated cost of manipulation.</strong> A precise figure cannot be reconstructed: the historical order-book depth and index-venue snapshots required to compute the capital needed to move the settlement price by a target percentage are no longer retrievable (no paid historical-data access). Only a very rough order-of-magnitude estimate would be possible, and it is not asserted here. What the evidence does support, without a cost figure, is the qualitative claim: against spot books this thin, the capital required to influence the index is small relative to the ~$46.5M of open interest referencing it.</p>
+<hr>
+<h2 id="sec-9">9. Part I: Conclusions</h2>
+<p>The Phase 1 evidence establishes a coherent structural picture:</p>
+<ul>
+<li><strong>Hyper-concentrated supply</strong>: top 10 ≈ 90%; ~94% under single control <em>if</em> the vesting-linked holders and the zero-history operational clusters are one interest (inferred, not proven; <a class="xref" href="#sec-7-1">§7.1</a>), rising toward ~99% only if CEX-held inventory is also team-affiliated (unverifiable).</li>
+<li><strong>Effective free float near zero</strong>: ~125M nominal, but almost entirely controlled.</li>
+<li><strong>Synthetic on-chain liquidity</strong>: the CLMM pool's depth sits entirely below market, providing no upside resistance.</li>
+<li><strong>An anomalous order book</strong>: a remote ~$2.62M ask wall on Binance Alpha, never touched and later withdrawn (ask-side depth down ~91%); intent (layering versus legitimate MM inventory) unresolved.</li>
+<li><strong>A fragile perp index</strong>: built on thin, controllable spot venues.</li>
+<li><strong>OI large relative to real liquidity</strong>: ~$46.5M observed against a few hundred thousand of executable spot, making any perpetual-settlement play structurally cheap to <em>attempt</em>.</li>
+</ul>
+<p>Together these constitute a token of very high structural manipulability: the float is almost entirely controlled, on-chain liquidity offers no upside resistance, and a large derivatives market settles against thin, controllable spot venues. As set out in <a class="xref" href="#sec-8-3">§8.3</a>, what this establishes is the manipulability of the structure; whether a manipulative act was actually carried out is a separate question the evidence here does not answer.</p>
+<hr>
+<h1 id="part-ii">PART II: Post-Incident Update</h1>
+<blockquote>
+<p><strong>Update window:</strong> 09–10 June 2026 · <strong>Reference price:</strong> ~$0.72</p>
+</blockquote>
+<h2 id="sec-10">10. The Reported "Hack" and Immediate Aftermath</h2>
+<p>On <strong>28 May 2026</strong> the team announced a security compromise (a claimed hack).</p>
+<p><strong>On-chain actors as declared:</strong></p>
+<ul>
+<li>Attacker address: <code>0x70ae678b457c5e1b3fd7ad9537f234dfc1795c15</code>.</li>
+<li><strong>Mechanism: address-spoofing redirection.</strong> During an intended transfer of GUA to a team-controlled address, an address-spoofing attack (a look-alike or poisoned destination address) routed the funds to an address controlled by the attacker, diverting the tokens in transit at the transfer level. (Note: this is <em>address</em> spoofing, distinct from the order-book "spoofing" discussed in <a class="xref" href="#sec-13">§13</a>.) The redirected GUA was then immediately sold on-chain for ETH, and the resulting ETH was split and distributed across multiple destination wallets.</li>
+<li>Destinations (~2,700 ETH total):</li>
+<li><code>0x7b8f28ff2e1d4df2d8ddd1dabaff8c3e58fe841c</code></li>
+<li><code>0xfa4cb6add9da4a4b714541b98fd4b2e3da86b7c8</code></li>
+<li><code>0x111b78A86C16dBD4261FCb5C7D3A9dAF25E2b589</code></li>
+</ul>
+<p><strong>Fund tracing:</strong></p>
+<ul>
+<li><strong>~1,800 ETH</strong> remains immobile across two addresses (<code>0xfA4cB6aD…</code> and <code>0x7b8f28Ff…</code>; Fig. 8 shows residual balances of ≈$1.63M and ≈$1.49M at the 10 Jun snapshot).</li>
+<li><strong>~900 ETH</strong> was bridged to Solana (<code>CjiUqftwknKFTCz99z5HmxMLQe5z2A2W58CuPamFFJQw</code>) via the Mayan cross-chain protocol, then fragmented across multiple wallets and laundered through FixedFloat.</li>
+</ul>
+<blockquote>
+<p><strong>Note on USD equivalents.</strong> The dollar figures above and in Fig. 8 are observed at different times: the graph edges carry transfer-time values, while the residual balances are wallet state at the 10 Jun snapshot, with the ETH price moving in between. They therefore do not reconcile to a single ETH price, and the ETH-denominated amounts are the operative figures. In particular, the ~$1.04M shown on the Mayan → Solana edge is the value captured on that edge and is not asserted to represent the full ~900 ETH bridged.</p>
+</blockquote>
+<figure><img alt="Fund flow, attacker to intermediaries to Mayan to Solana to FixedFloat" src="assets/fig09_fund_flow.png"><figcaption>Fig. 8. Arkham fund-flow graph. <code>0x70AE678b…</code> sends ~$5.72M over 51 transfers into <code>0xB292a701…</code>, which splits it to the three declared destinations (<code>0x111b78A8…</code>; <code>0xfA4cB6aD…</code>, residual ≈$1.63M; <code>0x7b8f28Ff…</code>, residual ≈$1.49M). Value then moves via a Mayan Forwarder to the Solana consolidation address <code>CjiUqftwknKFTCz99…</code> (~$1.04M across 13 transfers) and fans out (principal legs ~$56K–$96K) into the FixedFloat hot wallet. Snapshot: 10 Jun 2026.</figcaption></figure>
+<blockquote>
+<p><strong>Observation (observed).</strong> The reported stolen funds were moved cross-chain: bridged via Mayan to Solana, then fragmented and routed through the FixedFloat instant-exchange service. This is recorded as a factual description of the on-chain flow. The report does not infer from this routing whether the incident was a genuine third-party exploit or otherwise, and no evidence here attributes the laundering to the team. The pattern is documented; its authorship is not asserted.</p>
+</blockquote>
+<hr>
+<h2 id="sec-11">11. Intensification of Suspicious Activity After the "Hack"</h2>
+<p>Following the reported hack, suspicious activity intensified. Immediately after the attacker-driven sells, millions of GUA tokens were withdrawn to zero-history wallets, roughly 100K–200K tokens per wallet, within the same time window, matching the Phase 1 clustering pattern.</p>
+<blockquote>
+<p>Critically, the first withdrawals begin exactly at the post-incident low, timing consistent with coordinated accumulation.</p>
+</blockquote>
+<p><strong>Post-incident cluster (sample, ~64 addresses):</strong></p>
+<pre><code>0x8647f28c430eda842becf95307dbc9bbfb3978e9
+0xcd5efa6e632d998ad47780e696f6ea09cf0427c2
+0x9888a6952e16c74333a2c349c8b6e6983f3f10c7
+0x99a35db22848583b1f8c6060709e31c32808e861
+0x195e6ceb74e6660896662fcf16976961af7c3c20
+... [full list in Appendix A.3]
+0x73ee8df513556d32f74e29dc1f33371fbb7c2759
+0x2ca59c9232f6652e3dce2f67b5a9d578d48da890
+</code></pre>
+<hr>
+<h2 id="sec-12">12. The $2M Coordinated Buy (08 June 2026)</h2>
+<p>On <strong>08 June 2026 at 11:19:17 UTC</strong>, a ~30-wallet cluster withdrew approximately <strong>$2M in USDT</strong>, used to buy GUA at market. The ~30 addresses are grouped under an Arkham private label ("gy") applied by the analyst to visualize the cluster as a single entity; the grouping is the analyst's own clustering under <a class="xref" href="#sec-2-2">§2.2</a>, not an Arkham-native entity attribution. The cluster is first-funded by <code>0x5283…9490</code>.</p>
+<figure><img alt="Private-label cluster gy, 30 addresses, about 2.04M dollars portfolio" src="assets/fig10_gy_portfolio.png"><figcaption>Fig. 9. Arkham private label "gy" (30 addresses; the label is the analyst's own grouping, not an Arkham-native entity), total ~$2,042,419. Holdings: 2.78M GUA (~$1.88M), 160.4K USDT, 2.77 BNB. BSC first funder: <code>0x5283…9490</code>. Snapshot: 10 Jun 2026.</figcaption></figure>
+<figure><img alt="USDT inflows funding the cluster, Gate and Binance hot wallets to 0x5283" src="assets/fig11_gy_inflows.png"><figcaption>Fig. 10. Funding inflows to the cluster (<code>0x5283…9490</code>): repeated transfers from Gate: Hot Wallet (<code>0x0D0…</code>) ($200K, $250K, $240K, $199.99K) and Binance: Hot Wallet ($470.01K, $299.9K), plus $130K / $298.2K from <code>0x4C5d…210F</code>, over ~2 days. Snapshot: 10 Jun 2026.</figcaption></figure>
+<p><strong>Cluster wallets (sample, ~30 addresses):</strong></p>
+<pre><code>0x1929a5e14472a590cf7cbb3eb940bc115a248ed3
+0xcf1df4513ef69b44e982a2b5e541e203d09fa6d2
+0x3951c93f6224228a766d21353c6313f1d02e012b
+0x7eb98474f2c25348cbf017f077c8c7fe6b0d8b55
+0x0cb0fc242cc66b433f0746def0745b52f477557b
+...
+0x1569700e7ed7c29eef160e63df642a2f6d52db90
+0x5283382223d832c423cb81ded4af1b2af0019490
+</code></pre>
+<p><strong>Immediately afterward</strong>, further withdrawals from roughly a dozen additional wallets (eight captured below), again from MEXC and LBank:</p>
+<pre><code>0x1BC0c474E8ae8d9EFC09A38f0b86Bdc25bF164Ae
+0xC9F779B8b97f013F91cB87053B1D426b4508E449
+0x79BA1B1FA15Bab9c9a06A7Ebd88980337aB29677
+0x03c7892FCe310573f0FEce798E5208e46b2E4c52
+0xA93FeA7C5fe9dc43c90C65d295a7a27CD6A4Ea5A
+0xade743D933F273E0Cd27995ef54935D980128799
+0x7F08faD1536b3dFc257246FfA00D9216890Ff9Be
+0x9669BA7d1f8D2Eb15D5e1Ad4fba773B456283Cf6
+</code></pre>
+<blockquote>
+<p>The schema is identical to Phase 1: coordinated CEX withdrawal → zero-history wallets → market buy, unchanged by the declared compromise that fell between the two phases.</p>
+</blockquote>
+<h3 id="sec-12-1">12.1 Corroborating market data: withdrawal timing on the price chart</h3>
+<p>The purpose of the chart capture below is narrow: to mark the timestamps of the post-incident withdrawals against GUA price action, illustrating that coordinated accumulation began at the post-incident low. Other on-screen figures (FDV, displayed market cap, pooled liquidity, Token Sniffer score) are incidental and are not relied upon here.</p>
+<figure><img alt="GUA price chart with post-incident withdrawal timestamps marked" src="assets/fig12_price_chart.png"><figcaption>Fig. 11. GUA/USDT price chart (BSC DEX view). Used only to align the post-incident withdrawal timestamps with the price low (the 28 May 2026 marker aligns with the announced incident and the subsequent ~$0.37 low); remaining on-screen metrics are not part of the analysis. Capture window: 09–10 Jun 2026.</figcaption></figure>
+<hr>
+<h2 id="sec-13">13. Order-Book Withdrawal Pattern on Binance Alpha (Intent Unresolved)</h2>
+<p>Returning to the ask wall observed on 20 May (<a class="xref" href="#sec-6">§6</a>, Table 1): a later full-depth snapshot shows the large remote walls withdrawn. Cumulative ask-side depth across the band collapsed by ~91%, from ≈$2.62M to ≈$0.24M (Table 2), with the dominant ~$860K block at $4.3–$4.4 reduced to ~$1,757 and the ~$577K block at $2.3–$2.4 removed entirely, while spot never traded up into the $1–$5 band in the interval. The before/after change in book depth is therefore an observed fact: large orders were placed and subsequently withdrawn without filling. (The later snapshot carries a higher Binance order-book <code>lastUpdateId</code>, 60038128782 against 58954977740, confirming it post-dates Table 1.)</p>
+<p><strong>Table 2: Binance Alpha full-depth ask side, "after" state (subsequent capture; snapshot <code>lastUpdateId</code> 60038128782).</strong></p>
+<table>
+<thead>
+<tr>
+<th>Price Level</th>
+<th style="text-align: right;">Volume at Level (USDT)</th>
+<th style="text-align: right;">Cumulative Volume (USDT)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$1.20 – $1.30</td>
+<td style="text-align: right;">14,303.91</td>
+<td style="text-align: right;">14,303.91</td>
+</tr>
+<tr>
+<td>$1.30 – $1.40</td>
+<td style="text-align: right;">36,662.45</td>
+<td style="text-align: right;">50,966.36</td>
+</tr>
+<tr>
+<td>$1.40 – $1.50</td>
+<td style="text-align: right;">14,385.53</td>
+<td style="text-align: right;">65,351.88</td>
+</tr>
+<tr>
+<td>$1.50 – $1.60</td>
+<td style="text-align: right;">15,910.65</td>
+<td style="text-align: right;">81,262.53</td>
+</tr>
+<tr>
+<td>$1.60 – $1.70</td>
+<td style="text-align: right;">17,761.60</td>
+<td style="text-align: right;">99,024.13</td>
+</tr>
+<tr>
+<td>$1.70 – $1.80</td>
+<td style="text-align: right;">181.43</td>
+<td style="text-align: right;">99,205.56</td>
+</tr>
+<tr>
+<td>$1.80 – $1.90</td>
+<td style="text-align: right;">174.46</td>
+<td style="text-align: right;">99,380.02</td>
+</tr>
+<tr>
+<td>$1.90 – $2.00</td>
+<td style="text-align: right;">2,868.22</td>
+<td style="text-align: right;">102,248.24</td>
+</tr>
+<tr>
+<td>$2.00 – $2.10</td>
+<td style="text-align: right;">1,360.42</td>
+<td style="text-align: right;">103,608.66</td>
+</tr>
+<tr>
+<td>$2.20 – $2.30</td>
+<td style="text-align: right;">3,508.30</td>
+<td style="text-align: right;">107,116.96</td>
+</tr>
+<tr>
+<td>$2.50 – $2.60</td>
+<td style="text-align: right;">5,626.10</td>
+<td style="text-align: right;">112,743.06</td>
+</tr>
+<tr>
+<td>$2.70 – $2.80</td>
+<td style="text-align: right;">10.76</td>
+<td style="text-align: right;">112,753.82</td>
+</tr>
+<tr>
+<td>$3.00 – $3.10</td>
+<td style="text-align: right;">12,665.85</td>
+<td style="text-align: right;">125,419.66</td>
+</tr>
+<tr>
+<td>$3.10 – $3.20</td>
+<td style="text-align: right;">20.00</td>
+<td style="text-align: right;">125,439.66</td>
+</tr>
+<tr>
+<td>$3.20 – $3.30</td>
+<td style="text-align: right;">120.86</td>
+<td style="text-align: right;">125,560.52</td>
+</tr>
+<tr>
+<td>$3.40 – $3.50</td>
+<td style="text-align: right;">6.25</td>
+<td style="text-align: right;">125,566.77</td>
+</tr>
+<tr>
+<td>$3.50 – $3.60</td>
+<td style="text-align: right;">31.04</td>
+<td style="text-align: right;">125,597.81</td>
+</tr>
+<tr>
+<td>$3.60 – $3.70</td>
+<td style="text-align: right;">36.00</td>
+<td style="text-align: right;">125,633.81</td>
+</tr>
+<tr>
+<td>$3.70 – $3.80</td>
+<td style="text-align: right;">19.98</td>
+<td style="text-align: right;">125,653.79</td>
+</tr>
+<tr>
+<td>$3.90 – $4.00</td>
+<td style="text-align: right;">19.97</td>
+<td style="text-align: right;">125,673.76</td>
+</tr>
+<tr>
+<td>$4.00 – $4.10</td>
+<td style="text-align: right;">27,937.13</td>
+<td style="text-align: right;">153,610.89</td>
+</tr>
+<tr>
+<td>$4.10 – $4.20</td>
+<td style="text-align: right;">48.21</td>
+<td style="text-align: right;">153,659.10</td>
+</tr>
+<tr>
+<td>$4.20 – $4.30</td>
+<td style="text-align: right;">19.98</td>
+<td style="text-align: right;">153,679.07</td>
+</tr>
+<tr>
+<td>$4.30 – $4.40</td>
+<td style="text-align: right;">1,756.54</td>
+<td style="text-align: right;">155,435.61</td>
+</tr>
+<tr>
+<td>$4.50 – $4.60</td>
+<td style="text-align: right;">99.95</td>
+<td style="text-align: right;">155,535.56</td>
+</tr>
+<tr>
+<td>$4.90 – $5.00</td>
+<td style="text-align: right;">297.00</td>
+<td style="text-align: right;">155,832.56</td>
+</tr>
+<tr>
+<td>$5.00 – $5.10</td>
+<td style="text-align: right;">14,314.60</td>
+<td style="text-align: right;">170,147.16</td>
+</tr>
+<tr>
+<td>$5.70 – $5.80</td>
+<td style="text-align: right;">3.64</td>
+<td style="text-align: right;">170,150.79</td>
+</tr>
+<tr>
+<td>$5.90 – $6.00</td>
+<td style="text-align: right;">1,537.00</td>
+<td style="text-align: right;">171,687.79</td>
+</tr>
+<tr>
+<td>$6.00 – $6.10</td>
+<td style="text-align: right;">64,275.00</td>
+<td style="text-align: right;">235,962.79</td>
+</tr>
+<tr>
+<td>$6.90 – $7.00</td>
+<td style="text-align: right;">417.00</td>
+<td style="text-align: right;">236,379.79</td>
+</tr>
+<tr>
+<td>$7.00 – $7.10</td>
+<td style="text-align: right;">5,434.31</td>
+<td style="text-align: right;">241,814.10</td>
+</tr>
+<tr>
+<td>$7.50 – $7.60</td>
+<td style="text-align: right;">450.00</td>
+<td style="text-align: right;">242,264.10</td>
+</tr>
+<tr>
+<td>$8.00 – $8.10</td>
+<td style="text-align: right;">14.16</td>
+<td style="text-align: right;">242,278.26</td>
+</tr>
+</tbody>
+</table>
+<p><em>Values reproduced verbatim from the venue's full-depth feed (cumulative column as reported; see note under Table 1).</em></p>
+<p><strong>What is observed:</strong></p>
+<ol>
+<li>The original orders were large in size (&gt;$2.5M cumulative; a single &gt;$860K block at $4.3–$4.4).</li>
+<li>They were placed far above the prevailing price (~5× spot), never in a position to fill organically at prevailing levels.</li>
+<li>They were withdrawn (ask-side depth down ~91%) without the price ever rising to touch them, confirmed by the before (Table 1) and after (Table 2) snapshots.</li>
+</ol>
+<p><strong>What is not resolved: intent.</strong> Placing large remote orders and later cancelling them unfilled is consistent with two competing explanations the available data cannot distinguish:</p>
+<ul>
+<li><strong>Illicit layering / spoofing</strong>: non-bona-fide resting orders, placed to shape perceived supply, then pulled (per FINRA Rule 5210 and CEA Section 4c(a)(5)(C) / 7 U.S.C. Section 6c(a)(5)(C): <em>layering</em> denotes multiple non-bona-fide price tiers; <em>spoofing</em>, orders entered with intent to cancel before execution); or</li>
+<li><strong>Legitimate market-maker behavior</strong>: remote inventory quoted as a passive ceiling and later repriced or withdrawn as conditions changed.</li>
+</ul>
+<p>Both produce the same on-tape footprint (large remote asks, no fills, bulk removal). Distinguishing them requires order-level data (placement and cancellation timestamps, order IDs, and confirmed absence of partial fills), which is not available from public full-depth snapshots. Accordingly, this report records the withdrawal pattern as observed but makes no finding as to intent. The term "spoofing" is noted only as one candidate explanation, not as a conclusion.</p>
+<blockquote>
+<p><strong>Note.</strong> This report draws no link between the ask-wall removal and any coordinated unwind of perpetual exposure. Such a link would depend on a dated OI series (<a class="xref" href="#sec-8-2">§8.2</a>), which is not available: with no timestamps the temporal coincidence cannot be established, and no foreknowledge inference is drawn here.</p>
+</blockquote>
+<hr>
+<h2 id="sec-14">14. Part II: Updated Conclusions</h2>
+<p>The post-incident evidence reinforces, rather than contradicts, the Part I assessment:</p>
+<ul>
+<li>The reported hack did not halt the coordinated accumulation; the same playbook resumed immediately afterward.</li>
+<li>Coordinated accumulation occurred at the post-incident low, beginning at that exact level.</li>
+<li>A ~$2M market buy was executed through a 30-wallet cluster (the analyst-labeled "gy" cluster), funded directly from Gate and Binance hot wallets.</li>
+<li>Continuous withdrawals from MEXC/LBank to zero-history wallets persisted, matching the Phase 1 structuring pattern.</li>
+<li>The reported stolen funds were moved cross-chain (Mayan → Solana → FixedFloat), recorded as an observed on-chain flow; no conclusion is drawn about whether the incident was genuine or staged from this routing alone.</li>
+</ul>
+<p><strong>Overall (assessed).</strong> The post-incident on-chain behavior (accumulation resuming at the exact low, the ~$2M coordinated buy through the analyst-labeled "gy" cluster, and continuous structured withdrawals to zero-history wallets) is difficult to reconcile with the conduct expected of a distressed third-party hack victim, and is more consistent with a continuation of the same coordinated accumulation documented before the incident. The durable, on-chain-evidenced objective is control of the token's float, which persists across the incident. The report does not assert the exploit was staged by the team: the laundering routing is documented, its authorship is not (<a class="xref" href="#sec-10">§10</a>). The conclusion rests on the behavioral on-chain record (clustered withdrawals with matching timestamps and sizes, the $2M coordinated buy, accumulation at the low), not on the vesting-linkage exhibit, nor on the perpetual or order-book observations, whose evidentiary limits are stated in <a class="xref" href="#sec-8-2">§8.2</a> and <a class="xref" href="#sec-13">§13</a>.</p>
+<hr>
+<h2 id="sec-15">15. Limitations and Analytical Constraints</h2>
+<ul>
+<li><strong>Attribution is behavioral, not identity proof.</strong> Clustering under <a class="xref" href="#sec-2-2">§2.2</a> (C1–C5) yields high confidence where multiple criteria converge, but does not establish legal identity or intent. The vesting linkage (<a class="xref" href="#sec-7-2">§7.2</a>, C6) is structural but applies only to the dormant holder set, not to the operational wallets; no direct on-chain funding edge between the two populations was established.</li>
+<li><strong>Controlled-supply figure is conditional.</strong> The ~94% presupposes that the proven vesting-linked tranche and the behaviorally-clustered operational wallets answer to one interest; no on-chain link between the two was established, so their common control is inferred, not proven (<a class="xref" href="#sec-7-1">§7.1</a>). Separately, the ~5% on CEX wallets may or may not be team-affiliated market-maker inventory, which is not verifiable on-chain, so the ~99% upper bound is doubly conditional and not asserted. The near-zero-float conclusion does not depend on either question.</li>
+<li><strong>The order-book withdrawal is observed; its intent is not.</strong> The before/after withdrawal of the ask wall is documented with full-depth data (<a class="xref" href="#sec-13">§13</a>, Tables 1–2), but the available data cannot distinguish illicit layering or spoofing from legitimate market-maker repricing. No finding of intent is made.</li>
+<li><strong>Snapshots span multiple dates</strong> (Jan, Apr, May, Jun 2026); each exhibit is dated and cross-date comparisons are flagged. State changes between snapshots are possible.</li>
+<li><strong>Open-interest figure is anchored to a single observed snapshot (~$46.5M).</strong> The OI decline over the window, including its apparent concentration in the run-up to the 28 May announced incident, is a monitoring observation only; precise levels and timestamps were not captured (paid historical data unavailable). No conclusion, and specifically no foreknowledge inference, rests on the OI trajectory.</li>
+<li><strong>The manipulation-cost estimate (<a class="xref" href="#sec-8-3">§8.3</a>) cannot be computed</strong> from currently available data; the historical order-book and index snapshots required are no longer retrievable. The qualitative claim (small capital relative to ~$46.5M OI) stands; a quantified figure does not.</li>
+</ul>
+<hr>
+<h2 id="sec-16">16. Recommended Next Steps</h2>
+<p>The findings that remain inferential in this report can be advanced, and in several cases upgraded to demonstrated fact, with data that open-source analysis cannot reach. The steps below are addressed to the parties who hold that data (the exchanges and their compliance functions, and holders of paid historical feeds); each names the specific evidence that would resolve a specific open question.</p>
+<ol>
+<li>
+<p><strong>Obtain order-level order-book data from Binance Alpha (resolves the intent question in <a class="xref" href="#sec-13">§13</a>).</strong> The before/after full-depth snapshots (Tables 1 and 2) document a ~91% withdrawal of remote ask-side depth with no fills, but they cannot show intent. The venue's own audit trail, meaning order placement and cancellation timestamps, order IDs, and confirmation that no partial fills occurred, would distinguish illicit layering or spoofing from legitimate market-maker repricing. This is the single dataset that would settle the question left open in <a class="xref" href="#sec-13">§13</a>.</p>
+</li>
+<li>
+<p><strong>Request account-level (KYC) attribution on the CEX withdrawals (tests the ~94% single-control hypothesis; <a class="xref" href="#sec-7-1">§7.1</a>).</strong> The zero-history clusters are funded by withdrawals to freshly created addresses from LBank, Gate, MEXC and Binance. Exchange records of which account or accounts originated those withdrawals would test directly whether the proven vesting-linked team/investor tranche and the operational fresh-wallet clusters trace to one controlling party, which is the inference on which the conditional ~94% rests. The attributive value sits on the withdrawal side: these are outbound transfers to new addresses, not deposits, so the records that matter are the KYC identities behind the withdrawing accounts.</p>
+</li>
+<li>
+<p><strong>Reconstruct real executable liquidity venue by venue, then quantify the cost to move the index (completes <a class="xref" href="#sec-8-3">§8.3</a>).</strong> A defensible estimate of the capital needed to move the settlement price by a target percentage, and of that figure against the ~$46.5M of open interest referencing it, requires per-venue spot depth across the index sources and the other listing exchanges. That real order-book liquidity was not retrievable from public snapshots. With it, the manipulation-cost claim moves from qualitative ("small relative to OI") to a quantified figure.</p>
+</li>
+<li>
+<p><strong>Reconstruct the dated open-interest series (<a class="xref" href="#sec-8-2">§8.2</a>).</strong> The OI decline appeared concentrated in the run-up to the 28 May incident, but the timing cannot be pinned without a dated historical series (a paid feed such as the Coinglass historical API); reconstructing it would either support the pre-incident timing observation or retire it.</p>
+</li>
+<li>
+<p><strong>Quantify the split between the two clusters (refines <a class="xref" href="#sec-7-1">§7.1</a>).</strong> A holder-level reconciliation at a single fixed snapshot would pin the share held by the proven vesting-linked tranche against the share held by the behaviorally-clustered fresh wallets, replacing the aggregate ~94% with an itemized breakdown. This does not change the near-zero-float conclusion; it sharpens the evidentiary decomposition and the reading of the conditional figure.</p>
+</li>
+<li>
+<p><strong>Continue tracking the reported-incident funds (extends <a class="xref" href="#sec-10">§10</a>).</strong> The ~1,800 ETH held immobile across two addresses, and the ~900 ETH routed via Mayan to Solana and then through FixedFloat, warrant ongoing monitoring. Any movement or consolidation would bear on whether the incident behaves like a genuine third-party theft or a managed transfer.</p>
+</li>
+</ol>
+<hr>
+<h2 id="sec-17">17. Regulatory Framing: FATF Virtual-Asset Red-Flag Mapping</h2>
+<p>The observed on-chain behaviors map onto recognized money-laundering and market-integrity red-flag typologies for virtual assets. This mapping is framing for compliance reviewers only; it does not add new factual claims, nor does it assert that any offense occurred.</p>
+<p>The typologies fall into two analytically distinct groups, which this report keeps separate. <strong>Group A</strong> covers the market-manipulation and accumulation conduct that is the subject of this assessment and is attributed, on behavioral grounds (<a class="xref" href="#sec-2-2">§2.2</a>), to the operator. <strong>Group B</strong> covers the laundering of the reported-incident (hack) proceeds; those flags describe the movement of funds out of the declared <em>attacker</em> address, whose identity and relationship to the team are <strong>unresolved and expressly not attributed to the operator here</strong> (<a class="xref" href="#sec-10">§10</a>, <a class="xref" href="#sec-14">§14</a>). Group B is included because the flow is forensically relevant and matches known typologies, not because its authorship is established.</p>
+<p><strong>Group A: Market-manipulation / accumulation conduct (attributed to the operator on behavioral grounds; <a class="xref" href="#sec-2-2">§2.2</a>).</strong></p>
+<table>
+<thead>
+<tr>
+<th>Observed behavior (this report)</th>
+<th>Red-flag typology</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Funds distributed across many zero-history wallets months ahead, in uniform sizes</td>
+<td>Structuring; use of newly created / single-use addresses to obscure source of funds</td>
+<td><a class="xref" href="#sec-4">§4</a>, <a class="xref" href="#sec-5">§5</a>, <a class="xref" href="#sec-11">§11</a></td>
+</tr>
+<tr>
+<td>Synchronized CEX withdrawals and USDT sweeps (second-level) across distinct wallets</td>
+<td>Coordinated transaction patterns inconsistent with independent retail activity</td>
+<td><a class="xref" href="#sec-3">§3</a>, <a class="xref" href="#sec-12">§12</a>; Figs. A–B</td>
+</tr>
+<tr>
+<td>Remote ask wall placed then removed unfilled</td>
+<td>Potential order-book manipulation (layering or spoofing); <em>intent unresolved</em></td>
+<td><a class="xref" href="#sec-6">§6</a>, <a class="xref" href="#sec-13">§13</a></td>
+</tr>
+<tr>
+<td>Perp OI ≫ real spot liquidity on a thin, controllable index</td>
+<td>Structural exposure to settlement/index manipulation</td>
+<td><a class="xref" href="#sec-8">§8</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Group B: Reported-incident fund movement (actor identity unresolved; <em>not</em> attributed to the operator or the team; <a class="xref" href="#sec-10">§10</a>).</strong></p>
+<table>
+<thead>
+<tr>
+<th>Observed behavior (this report)</th>
+<th>Red-flag typology</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reported proceeds bridged cross-chain (Mayan → Solana) then fragmented</td>
+<td>Chain-hopping / layering to break the trace</td>
+<td><a class="xref" href="#sec-10">§10</a>; Fig. 8</td>
+</tr>
+<tr>
+<td>Routing through FixedFloat instant-exchange</td>
+<td>Use of services with limited KYC to convert or launder</td>
+<td><a class="xref" href="#sec-10">§10</a>; Fig. 8</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>These typologies follow the FATF <em>Virtual Assets Red Flag Indicators</em> categories (transactions; transaction patterns; anonymity; senders/recipients; source of funds/wealth; geography). Inclusion here is descriptive, not a legal conclusion. The Group A / Group B split is deliberate: the two groups describe conduct by potentially different actors and must not be read as a single attributed profile.</p>
+</blockquote>
+<hr>
+<h2 id="glossary">Glossary of Defined Terms</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition as used in this report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLMM</strong></td>
+<td>Concentrated-liquidity market maker (for example PancakeSwap Infinity or Uniswap V3): liquidity is provided within specific price ranges; outside the active range there is no executable depth.</td>
+</tr>
+<tr>
+<td><strong>Out of range</strong></td>
+<td>A CLMM state in which the market price has moved beyond all provided liquidity, so no on-chain depth exists on one side.</td>
+</tr>
+<tr>
+<td><strong>Open interest (OI)</strong></td>
+<td>Total value of outstanding (unsettled) perpetual-futures contracts.</td>
+</tr>
+<tr>
+<td><strong>Index price</strong></td>
+<td>The reference price a perpetual contract uses for funding and settlement, sourced from one or more spot venues.</td>
+</tr>
+<tr>
+<td><strong>Zero-history wallet</strong></td>
+<td>An address with no prior on-chain transaction history at the moment it is first funded.</td>
+</tr>
+<tr>
+<td><strong>Spoofing</strong></td>
+<td>Entering one or more non-bona-fide orders (typically at the top of book) with intent to cancel before execution (Commodity Exchange Act Section 4c(a)(5)(C), 7 U.S.C. Section 6c(a)(5)(C), as added by Dodd-Frank Act Section 747).</td>
+</tr>
+<tr>
+<td><strong>Layering</strong></td>
+<td>A form of spoofing using multiple non-bona-fide orders at several price tiers to amplify a false impression of supply or demand (FINRA Rule 5210; CFTC under CEA Section 4c(a)(5)(C)).</td>
+</tr>
+<tr>
+<td><strong>Peeling / fragmentation</strong></td>
+<td>Splitting a balance across many addresses or hops to obscure the common origin.</td>
+</tr>
+<tr>
+<td><strong>Attributed / observed / assessed</strong></td>
+<td>Confidence tiers defined in <a class="xref" href="#sec-2-3">§2.3</a>.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="sources">Sources &amp; Standards Referenced</h2>
+<ul>
+<li><strong>On-chain / market data:</strong> BscScan; Arkham Intelligence; Coinglass; Binance Alpha full-depth feed (<code>ALPHA_483USDT</code>); PancakeSwap Infinity; DEX analytics.</li>
+<li><strong>FATF</strong>: <em>Virtual Assets Red Flag Indicators of Money Laundering and Terrorist Financing</em> (indicator categories used in <a class="xref" href="#sec-17">§17</a>).</li>
+<li><strong>FINRA / CFTC / Dodd-Frank Act</strong>: definitions of spoofing and layering (CEA Section 4c(a)(5)(C); 7 U.S.C. Section 6c(a)(5)(C); FINRA Rule 5210) (Glossary, <a class="xref" href="#sec-13">§13</a>).</li>
+<li><strong>ICD 203 analytic standards / words of estimative probability</strong>: basis for the confidence lexicon (<a class="xref" href="#sec-2-3">§2.3</a>) and BLUF structure.</li>
+<li><strong>Industry methodology norms</strong> (Chainalysis, Elliptic, TRM Labs): documentation-and-dating practices underpinning attribution reliability (<a class="xref" href="#sec-2-1">§2.1</a>).</li>
+</ul>
+<hr>
+<h2 id="appendix-a">Appendix A: Wallet Lists</h2>
+<blockquote>
+<p>All addresses below are on BNB Smart Chain. Inclusion reflects the clustering criteria in <a class="xref" href="#sec-2-2">§2.2</a>; attribution is behavioral (C1–C5) unless otherwise noted. Exact funding timestamps and sizes are held in the analyst's working dataset and can be appended per address on request.</p>
+</blockquote>
+<h3 id="a1-january-2026-preparatory-withdrawals-to-zero-history-wallets-52-addresses-4">A.1: January 2026 preparatory withdrawals to zero-history wallets (52 addresses), <a class="xref" href="#sec-4">§4</a></h3>
+<ul>
+<li><code>0x273b34db099c71be5b4bfbb577bd0b84bae4f875</code></li>
+<li><code>0x79a262de403f13ae73c100f2fa721a02a6a02395</code></li>
+<li><code>0xfe61a98883e99dc66b33d8fb940f98b215886073</code></li>
+<li><code>0x4daec48150ed24b210c44a02487269455a7b47b4</code></li>
+<li><code>0x623ff409fd880757b5c48ceed86e66a8a539196c</code></li>
+<li><code>0xde215eb6a421c597658a242a70d2924a07246e2b</code></li>
+<li><code>0x6a4b45abaad9f14b222e72cf6f5249e8618d931d</code></li>
+<li><code>0x4d8c6e4437596649ccb2cf827b393f85191838cf</code></li>
+<li><code>0x725de9c0da808f9fcbb6412d7e2102a0f690c636</code></li>
+<li><code>0xf396addadd91ef6825f3463f62c82e621823d0a5</code></li>
+<li><code>0x2ded41c74fa7d93a982a767704184e42055798e0</code></li>
+<li><code>0x0057679466e1227ca604ad05e01cd2808d96a9bf</code></li>
+<li><code>0x0b46f2ed9cfde55b6dc0f891a757875e50fb05af</code></li>
+<li><code>0xc986f1e42a46307f9f2cd1d2948062566cb37d4f</code></li>
+<li><code>0x0b79e0c2c6270c407654777c8fb610297707e6c8</code></li>
+<li><code>0x8199cc87f4a8458477d7ded4eef5cd1f9a816c81</code></li>
+<li><code>0x324e7ea697e054bd6d66e629ac26927c7f56328e</code></li>
+<li><code>0x8cfb33160219c21ebcbbc6c0dbde9064d9382f1d</code></li>
+<li><code>0x91bf57d1c8819b5ef8d2497bf624ff949d2ced62</code></li>
+<li><code>0xfed4d1b5d379ed5a4905a7c3e0745124a6f4a44a</code></li>
+<li><code>0x09948ba48c93ea50317d7f86e64f592313fe587b</code></li>
+<li><code>0x5705e436ca94bc09a6ee0aa9b14fa42b0fcdb032</code></li>
+<li><code>0x86a38e7f3c6e6aedbd1f78d32dd3eeb26f7f253e</code></li>
+<li><code>0xb21f8ade5efcbf10c66577212daf9ab81cf2355f</code></li>
+<li><code>0xd40504bc7db248be74f987e76c0ad4ee82ef2e03</code></li>
+<li><code>0x1ead54cef6801e3895324c4822abc73fd1a7971e</code></li>
+<li><code>0x4eff8e728a6ca98eaa87a2d6941e7c7058ffd116</code></li>
+<li><code>0x165f6b29fb74afc694b62908392ffcebe86ad0ba</code></li>
+<li><code>0x0ede4fcc7b9ece256e149f74d2234170145f9012</code></li>
+<li><code>0x6caa811953619f2258fdc0a66745c777b7591909</code></li>
+<li><code>0x07b77f6108c2d832f6fdff1d81af94615ac6ada5</code></li>
+<li><code>0x849a8b13488a160c814e38451f02faa4426af06f</code></li>
+<li><code>0xc687e0544aea0095b1c0c8842beecedc38fb1c08</code></li>
+<li><code>0x9ce936e26786f9d95e1328454a82f1dc653dbbd0</code></li>
+<li><code>0xb4d4ab2ea00b3cfc1ba8f8cc5166aa7e8df55a85</code></li>
+<li><code>0x826dfee7384b22373cdf48a1691056becc1649cb</code></li>
+<li><code>0xbb2bc038b3d43e41c86d422319b8d2719dd9899a</code></li>
+<li><code>0x21d365804c5ce40dd9bb45f3a4cfa9918c5e016f</code></li>
+<li><code>0xfd67ff7956072bd89c422cb6bd994e178fad68d5</code></li>
+<li><code>0x6481dea1d4b83133725d46d695f855e080a4fcd5</code></li>
+<li><code>0xb76a71033d6dcb1d9ecd7c1a9b7d2b70c1829230</code></li>
+<li><code>0x5898916e3fc17c7cba6b0fc64014c87f4de0df48</code></li>
+<li><code>0xc26f6d8f5b586b604ab2fac16b63fdb211e2ec8b</code></li>
+<li><code>0x7f22304153079f2eea4c55f0d3cf5b8d7cfffbe2</code></li>
+<li><code>0x79ab169489e777a6ac19c0a2bf88a1015f2353b8</code></li>
+<li><code>0x842ec16561e154861148754e689b371618a721c4</code></li>
+<li><code>0x5ec59b94490d804fc0a7e2841b724b11dae10e1c</code></li>
+<li><code>0x896b4b14d3436119a8043b8c7ff6f323b9f09aa5</code></li>
+<li><code>0xb8edc84aa0837513e4ed7df92530e34c9d5f01d1</code></li>
+<li><code>0x1002293130f7967cd31d231710abbf66458f6e0e</code></li>
+<li><code>0xb20f204a158e4ed0f40fa02b048bbb2ea7ff3cc8</code></li>
+<li><code>0x4ff0a588e32b024955618401820873dd69739245</code></li>
+</ul>
+<h3 id="a2-post-buy-withdrawals-early-april-2026-lbank-gate-7-addresses-5">A.2: Post-buy withdrawals, early April 2026 (LBank / Gate) (7 addresses), <a class="xref" href="#sec-5">§5</a></h3>
+<ul>
+<li><code>0xeec26ede0c45c7bbb955f12fdf89ba76e1e9601f</code></li>
+<li><code>0xee0a2d8926a2cf533efb2eccb214ca3fc5001119</code></li>
+<li><code>0x68dd7697f19157eb306c9bb9e6dd0993e9ead3d8</code></li>
+<li><code>0x6c30312bfb8cc75172fd644433a7f1c8fc90d307</code></li>
+<li><code>0x7fdf52f7cced5b8ba7de453025a75171e1e0babc</code></li>
+<li><code>0xb37355466401c308e945c6b410fbaa4233131cf9</code></li>
+<li><code>0xb6a23ad1eca6ea9449ed96ef5b74071b03dd2195</code></li>
+</ul>
+<h3 id="a3-post-incident-cluster-64-addresses-11">A.3: Post-incident cluster (64 addresses), <a class="xref" href="#sec-11">§11</a></h3>
+<p>The full set of 64 addresses identified in the post-incident cluster (<a class="xref" href="#sec-11">§11</a>) is listed below. Attribution is behavioral (criteria C1–C5, <a class="xref" href="#sec-2-2">§2.2</a>).</p>
+<ul>
+<li><code>0x8647f28c430eda842becf95307dbc9bbfb3978e9</code></li>
+<li><code>0xcd5efa6e632d998ad47780e696f6ea09cf0427c2</code></li>
+<li><code>0x9888a6952e16c74333a2c349c8b6e6983f3f10c7</code></li>
+<li><code>0x99a35db22848583b1f8c6060709e31c32808e861</code></li>
+<li><code>0x195e6ceb74e6660896662fcf16976961af7c3c20</code></li>
+<li><code>0x2cc6cbfcbb65f959e49e6954693fe841492ef704</code></li>
+<li><code>0x9f353c84c3c577f3c6c2f8726228266351c046f5</code></li>
+<li><code>0xf4b99d25b2c9c5f1b5e62ab5535b832490612a7d</code></li>
+<li><code>0x29ac4859d8ae89c9497ed64059e2251f8b522353</code></li>
+<li><code>0x142728cfe24743e85cc270d036060d9942fdcc4f</code></li>
+<li><code>0x9fa6c070a990625af2ab811579ba0548803e42cb</code></li>
+<li><code>0x3c94324d090fa516948e8393394b36b9b7594438</code></li>
+<li><code>0xb41d33930d18383ce8128712aecc52e0893847bf</code></li>
+<li><code>0x4a063dd13e529ca245575e86882fb3a90e3c7d60</code></li>
+<li><code>0x4ce8147cec4b10620311ffe191690ed61784309d</code></li>
+<li><code>0x84433ff819f682f23622c6dc3550c32e70532cc6</code></li>
+<li><code>0x3d522ce8c110faa883e58fdc9380325675fec2bc</code></li>
+<li><code>0xd494245365717dc1661f0e6ca2ea68ed5c4cb168</code></li>
+<li><code>0x01edb92a6e46dc37d868394face7d4c9a711db1f</code></li>
+<li><code>0xc0ecc3b86b6bb09fa6d8e31814af7388ac043cef</code></li>
+<li><code>0xb5912e3a4cf8b6460686227c2eab1f51bc955fb1</code></li>
+<li><code>0x788370bd04d64709caf1c5892c2e86da2de3bdf3</code></li>
+<li><code>0x8923086f199fec4ccddbd93761a8120f06319b99</code></li>
+<li><code>0xe3ea485550d34ce155124d2a578cdb89ba9cc2e7</code></li>
+<li><code>0xe5cfe51b75f3c6e7f289f23df3a165c2bf2cf336</code></li>
+<li><code>0xfd1349030d820166f89bf3f044e4172d7e799977</code></li>
+<li><code>0x48f14bd3dcf6be6b9744475b52975159adb8bf9d</code></li>
+<li><code>0x1b1f80aaf244021f5054df5573e0de91d83da497</code></li>
+<li><code>0x714ca8966a51f661d62c6fe309dbe922bef5d5df</code></li>
+<li><code>0x8897a34995eead52fa57f8dd8041f80ee37a7487</code></li>
+<li><code>0x63d33fb0d6fba89c23586978ae101e783ef8b160</code></li>
+<li><code>0x323e0053d0597e6ce1f21675de0e4569ebc0c70b</code></li>
+<li><code>0xf883fb8c73ee9816238204c6e90aa8ee243e2212</code></li>
+<li><code>0xf73625ba86c855da883376265bcb6168e756e221</code></li>
+<li><code>0x229b852213e0d23c86b8aa0632731a6ea5664539</code></li>
+<li><code>0x3c5c411e186f07451cf99fa8c876e83f1911e05f</code></li>
+<li><code>0xbfc32c00db82f74fa07c5fe87e76b5e03e34449f</code></li>
+<li><code>0x26bdc6b9fc1f8f4e40f683fbee975104d4df9ffe</code></li>
+<li><code>0xfb607452511c4489af394634039f3fef1f4ea606</code></li>
+<li><code>0x74dfc703ab1d94a18d8b06e03e4d6f418329a902</code></li>
+<li><code>0x9f87dba3bd29f3e4ac5cffc8e628e6fef46ef380</code></li>
+<li><code>0xd0c26575090ba8c8f2087e07689f725f27171376</code></li>
+<li><code>0x5f26f44f2fbffaf4749bab13b06dc5594bd5f519</code></li>
+<li><code>0x972f68c48c41b224ca24f6cac035b2d47e39dc8c</code></li>
+<li><code>0xe9e600b8fd589dff2e4c09590b5bf4daebde1030</code></li>
+<li><code>0x0da740c806ab3239843487cdb178e74a5e8245e2</code></li>
+<li><code>0x8c99191fd46100a01f4b0592e62933245996fefe</code></li>
+<li><code>0xffb76ef626af0fe516fa7b56a8f6b3971e5d7c6b</code></li>
+<li><code>0x8a3c70f6931e61561d14d58abbb92f1e5fbccce1</code></li>
+<li><code>0x7dcf021785c292403a97ea714f055824b0eb9ea4</code></li>
+<li><code>0x103e0fb4de49f60edf84bfd68f28399b6c1e8988</code></li>
+<li><code>0x759fd039bada52ca1a9e312f874cb414a1ed0844</code></li>
+<li><code>0xa7e8d0d12a828e4bbd789862861c68bbdc962499</code></li>
+<li><code>0xd83b2337abcebad33c9830f519fe74cb879da279</code></li>
+<li><code>0xd596803021658a85bb04ae23a5f7e2e4ca696795</code></li>
+<li><code>0x7ec48a082917a4b302d0b764bc18577c9c64ca3b</code></li>
+<li><code>0x07313b66d1b7f3f47732145b927670f90d0a552d</code></li>
+<li><code>0xb434f3e8e52e67cb57421ad5c5e196e489a75731</code></li>
+<li><code>0xc11f48bbaec90148b0b70a02505548b5b47d48ab</code></li>
+<li><code>0x281add20ac6b72764ee88e634a6160042c95b3ac</code></li>
+<li><code>0x3f1bfc21251ff978322c091543368f76ea392d31</code></li>
+<li><code>0x3f94db046e98bdc3a25c18eae3ec8f66434f0f55</code></li>
+<li><code>0x73ee8df513556d32f74e29dc1f33371fbb7c2759</code></li>
+<li><code>0x2ca59c9232f6652e3dce2f67b5a9d578d48da890</code></li>
+</ul>
+<h3 id="a4-private-label-gy-cluster-30-addresses-12">A.4: Private-label "gy" cluster (~30 addresses), <a class="xref" href="#sec-12">§12</a></h3>
+<p>A representative sample of the ~30 addresses is listed in <a class="xref" href="#sec-12">§12</a>. The complete cluster is maintained as an Arkham private label and can be viewed in full at <a href="https://arkm.com/labels/bb270349-e7f5-44df-985e-d7d070fd256c">https://arkm.com/labels/bb270349-e7f5-44df-985e-d7d070fd256c</a>.</p>
+<h3 id="a5-subsequent-mexc-lbank-withdrawals-12">A.5: Subsequent MEXC / LBank withdrawals, <a class="xref" href="#sec-12">§12</a></h3>
+<p>The eight captured addresses of this group are listed in <a class="xref" href="#sec-12">§12</a>.</p>
+<hr>
+<h2 id="appendix-b">Appendix B: Exhibit Index</h2>
+<table>
+<thead>
+<tr>
+<th>Exhibit</th>
+<th>Subject</th>
+<th>Source</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Figs. A–B</td>
+<td>Synchronized USDT transfers (clustering evidence)</td>
+<td>BscScan</td>
+<td>02 May 2026</td>
+</tr>
+<tr>
+<td>Fig. 1</td>
+<td>CLMM pool composition</td>
+<td>PancakeSwap Infinity</td>
+<td>20 May 2026</td>
+</tr>
+<tr>
+<td>Fig. 2</td>
+<td>CLMM active-liquidity distribution</td>
+<td>DEX analytics</td>
+<td>01 Apr 2026 basis <em>(file dated 20 May 2026)</em></td>
+</tr>
+<tr>
+<td>Table 1</td>
+<td>Binance Alpha ask-side depth (before)</td>
+<td>Binance Alpha full depth (<code>lastUpdateId</code> 58954977740)</td>
+<td>20 May 2026</td>
+</tr>
+<tr>
+<td>Table 2</td>
+<td>Binance Alpha ask-side depth (after)</td>
+<td>Binance Alpha full depth (<code>lastUpdateId</code> 60038128782)</td>
+<td>subsequent capture</td>
+</tr>
+<tr>
+<td>Fig. 3</td>
+<td>Holder distribution (Top 10 = 90.29%)</td>
+<td>BscScan / analytics</td>
+<td>09 Jun 2026</td>
+</tr>
+<tr>
+<td>Fig. 4</td>
+<td>Vesting → Gnosis Safe → dormant holder set</td>
+<td>Arkham</td>
+<td>09 Jun 2026</td>
+</tr>
+<tr>
+<td>Fig. 5</td>
+<td>Perp index composition by venue</td>
+<td>Coinglass</td>
+<td>20 May 2026</td>
+</tr>
+<tr>
+<td>Fig. 6</td>
+<td>BingX contract spec (index = GATE)</td>
+<td>Exchange spec</td>
+<td>20 May 2026</td>
+</tr>
+<tr>
+<td>Fig. 7</td>
+<td>Open interest by exchange</td>
+<td>Coinglass</td>
+<td>20 May 2026</td>
+</tr>
+<tr>
+<td>Fig. 8</td>
+<td>Attacker → Mayan → Solana → FixedFloat flow</td>
+<td>Arkham</td>
+<td>10 Jun 2026</td>
+</tr>
+<tr>
+<td>Fig. 9</td>
+<td>Private-label cluster "gy" (30 addresses, ~$2.04M)</td>
+<td>Arkham (analyst-applied private label)</td>
+<td>10 Jun 2026</td>
+</tr>
+<tr>
+<td>Fig. 10</td>
+<td>Cluster funding inflows (Gate/Binance hot wallets)</td>
+<td>Arkham</td>
+<td>10 Jun 2026</td>
+</tr>
+<tr>
+<td>Fig. 11</td>
+<td>GUA price chart with withdrawal timestamps</td>
+<td>DEX screener</td>
+<td>09–10 Jun 2026</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>End of report.</em></p>
+</body></html>

@@ -1,0 +1,31 @@
+---
+import Base from '../../../layouts/Base.astro';
+import CaseStudyCard from '../../../components/CaseStudyCard.astro';
+import { LOCALES, type Locale } from '../../../config';
+import { useTranslations } from '../../../i18n/ui';
+import { sortedCaseStudies } from '../../../data/caseStudies';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+---
+<Base locale={locale} title={t('work.title')} description={t('work.sub')} path="/work">
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">{t('site.tagline')}</p>
+      <h1>{t('work.title')}</h1>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1.25rem;">
+    <div class="container">
+      <p class="lede">{t('work.sub')}</p>
+      <div class="card-grid">
+        {sortedCaseStudies.map((study) => <CaseStudyCard study={study} locale={locale} />)}
+      </div>
+    </div>
+  </section>
+</Base>

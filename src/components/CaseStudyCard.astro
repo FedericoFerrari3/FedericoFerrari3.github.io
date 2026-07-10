@@ -1,0 +1,22 @@
+---
+import type { Locale } from '../config';
+import type { CaseStudy } from '../data/caseStudies';
+import { useTranslations } from '../i18n/ui';
+import { localizePath } from '../i18n/utils';
+
+interface Props { study: CaseStudy; locale: Locale }
+const { study, locale } = Astro.props;
+const t = useTranslations(locale);
+const c = study.i18n[locale];
+const href = localizePath(`/work/${study.slug}`, locale);
+---
+<a class="card" href={href}>
+  <span class="case-no">Case {String(study.order).padStart(2, '0')}</span>
+  <span class="kicker">{c.kicker}</span>
+  <h3>{c.title}</h3>
+  <p>{c.summary}</p>
+  <div class="tags">
+    {study.tags.map((tag) => <span class="tag">{tag}</span>)}
+  </div>
+  <span class="card-cta">{t('work.readMore')} <span class="arw">→</span></span>
+</a>

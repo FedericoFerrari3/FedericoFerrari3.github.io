@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, type Locale } from '../../config';
+import { useTranslations, skillsGroups, story } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+const desc = t('site.tagline');
+---
+<Base locale={locale} title={t('about.title')} description={desc} path="/about">
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">{t('site.tagline')}</p>
+      <h1>{t('about.title')}</h1>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1.5rem;">
+    <div class="container">
+      <div class="prose">
+        <h2>{t('about.bioTitle')}</h2>
+        {story[locale].map((p) => <p>{p}</p>)}
+
+        <h2>{t('about.skillsTitle')}</h2>
+      </div>
+      {skillsGroups[locale].map((g) => (
+        <div class="skill-block">
+          <span class="k">{g.label}:</span> <span class="items">{g.items}</span>
+        </div>
+      ))}
+      <div class="prose">
+        <h2>{t('about.eduTitle')}</h2>
+        <p>{t('about.edu')}</p>
+        <h2>{t('about.langTitle')}</h2>
+        <p>{t('about.lang')}</p>
+      </div>
+    </div>
+  </section>
+</Base>

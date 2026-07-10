@@ -1,0 +1,47 @@
+---
+// Root entry. GitHub Pages is a static host (no server-side locale negotiation), so we
+// detect the visitor's language client-side and redirect to /en/ or /it/. A persisted
+// manual choice (localStorage 'lang', set by the header toggle) wins over the browser locale.
+import { SITE } from '../config';
+const desc =
+  'Independent on-chain investigator. Wallet clustering, cross-chain fund tracing, and market-manipulation analysis, documented to intelligence-grade standards.';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Federico Ferrari · On-Chain Investigator</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={`${SITE.url}/en`} />
+    <link rel="alternate" hreflang="en" href={`${SITE.url}/en`} />
+    <link rel="alternate" hreflang="it" href={`${SITE.url}/it`} />
+    <link rel="alternate" hreflang="x-default" href={`${SITE.url}/en`} />
+    <meta name="theme-color" content="#0a0f0e" />
+    <noscript><meta http-equiv="refresh" content="0; url=/en/" /></noscript>
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('lang');
+          var nav = (navigator.language || 'en').toLowerCase();
+          var lang = stored || (nav.indexOf('it') === 0 ? 'it' : 'en');
+          if (lang !== 'it' && lang !== 'en') lang = 'en';
+          window.location.replace('/' + lang + '/');
+        } catch (e) {
+          window.location.replace('/en/');
+        }
+      })();
+    </script>
+    <style>
+      body { background: #0a0f0e; color: #8b9792; font-family: system-ui, sans-serif; }
+      .wrap { max-width: 30rem; margin: 20vh auto; text-align: center; padding: 0 1rem; }
+      a { color: #3bb3a3; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <p>Redirecting… choose your language:</p>
+      <p><a href="/en/">English</a> &nbsp;·&nbsp; <a href="/it/">Italiano</a></p>
+    </div>
+  </body>
+</html>

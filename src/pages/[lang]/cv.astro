@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, CV_FILES, type Locale } from '../../config';
+import { useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+// Offer the active language first, the other second.
+const primary = locale === 'it' ? { href: CV_FILES.it, label: t('cv.it') } : { href: CV_FILES.en, label: t('cv.en') };
+const secondary = locale === 'it' ? { href: CV_FILES.en, label: t('cv.en') } : { href: CV_FILES.it, label: t('cv.it') };
+---
+<Base locale={locale} title={t('cv.title')} description={t('cv.intro')} path="/cv">
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">{t('site.tagline')}</p>
+      <h1>{t('cv.title')}</h1>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1.25rem;">
+    <div class="container">
+      <p class="lede">{t('cv.intro')}</p>
+      <div class="report-actions" style="margin-top:1.75rem;">
+        <a class="btn btn-primary" href={primary.href} download>{primary.label}</a>
+        <a class="btn btn-ghost" href={secondary.href} download>{secondary.label}</a>
+      </div>
+      <div class="note" style="max-width:52rem;">{t('cv.note')}</div>
+    </div>
+  </section>
+</Base>

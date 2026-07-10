@@ -1,0 +1,97 @@
+---
+import '../styles/global.css';
+import type { Locale } from '../config';
+import { SITE, LOCALES } from '../config';
+import { useTranslations } from '../i18n/ui';
+import { localizePath } from '../i18n/utils';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Locale-relative path for hreflang alternates, e.g. '/', '/work', '/work/superfortune'. */
+  path: string;
+  ogImage?: string;
+}
+const { locale, title, description, path, ogImage = '/og/og-image.png' } = Astro.props;
+const t = useTranslations(locale);
+
+const fullTitle = path === '/' ? `${SITE.name} · On-Chain Investigator` : `${title} · ${SITE.name}`;
+const canonical = SITE.url + localizePath(path, locale);
+const ogUrl = SITE.url + ogImage;
+
+const alternates = LOCALES.map((l) => ({ hreflang: l, href: SITE.url + localizePath(path, l) }));
+---
+<!doctype html>
+<html lang={locale} data-brand="c">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Single managed theme-color: kept in sync with the site theme (not the OS) by the scripts
+         below and by the toggle handler in Header.astro. Default matches the SSR/no-JS dark theme. -->
+    <meta name="theme-color" content="#0a0f0e" />
+    <!-- Theme init: runs before paint to avoid a flash. A saved choice wins; else follow the OS.
+         Also sets the browser-chrome tint (theme-color) to match the site theme, not the OS, so
+         iOS Safari's toolbar / overscroll areas flip together with the page. -->
+    <script is:inline>
+      (function () {
+        var LIGHT = '#ffffff', DARK = '#0a0f0e';
+        try {
+          var d = document.documentElement;
+          var stored = localStorage.getItem('theme');
+          var prefLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          var theme = stored === 'light' || stored === 'dark' ? stored : (prefLight ? 'light' : 'dark');
+          d.setAttribute('data-theme', theme);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', theme === 'light' ? LIGHT : DARK);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="author" content={SITE.name} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
+    />
+
+    {alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={SITE.url + localizePath(path, 'en')} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={locale === 'it' ? 'it_IT' : 'en_US'} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t('nav.skipToContent')}</a>
+    <Header locale={locale} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

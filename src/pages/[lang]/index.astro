@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import CaseStudyCard from '../../components/CaseStudyCard.astro';
+import { LOCALES, type Locale } from '../../config';
+import { useTranslations, whatIDo } from '../../i18n/ui';
+import { localizePath } from '../../i18n/utils';
+import { sortedCaseStudies } from '../../data/caseStudies';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+const desc = t('home.metaDesc');
+---
+<Base locale={locale} title={t('nav.home')} description={desc} path="/">
+  <section class="hero">
+    <div class="container">
+      <p class="role">{t('home.role')}</p>
+      <h1>Federico Ferrari</h1>
+      <p class="hero-line">{t('home.hero')}</p>
+      <p class="hero-sub">{t('home.sub')}</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href={localizePath('/work', locale)}>{t('home.cta.work')}</a>
+        <a class="btn btn-ghost" href={localizePath('/cv', locale)}>{t('home.cta.cv')}</a>
+        <a class="btn btn-ghost" href={localizePath('/contact', locale)}>{t('home.cta.contact')}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-no">01</span>
+        <p class="eyebrow">{t('home.what.title')}</p>
+        <span class="rule"></span>
+      </div>
+      <ul class="dolist">
+        {whatIDo[locale].map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-no">02</span>
+        <p class="eyebrow">{t('home.work.title')}</p>
+        <span class="rule"></span>
+      </div>
+      <p class="lede" style="margin-bottom:2rem;">{t('home.work.sub')}</p>
+      <div class="card-grid">
+        {sortedCaseStudies.map((study) => <CaseStudyCard study={study} locale={locale} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight" style="padding-bottom:4rem;">
+    <div class="container">
+      <div class="note" style="max-width: 54rem;">{t('home.availability')}</div>
+    </div>
+  </section>
+</Base>

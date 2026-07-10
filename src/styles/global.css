@@ -1,0 +1,569 @@
+/* =========================================================================
+   Federico Ferrari — portfolio.
+   Theming is token-driven:
+     [data-brand="c"]          the chosen visual identity ("Signal", fonts + treatment)
+     [data-theme="light|dark"] selects the palette
+   Brand C ("Signal") is the site's static default, set on <html> in Base.astro.
+   The earlier design-selection scaffolding (brand A/B blocks and the ?brand=
+   override) has been removed now that the brand is picked.
+   ========================================================================= */
+
+:root {
+  --maxw: 68rem;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius: 8px;
+  /* sensible fallbacks; overridden per brand */
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+  --font-body: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+}
+
+/* =========================================================================
+   BRAND IDENTITIES (fonts + shape only; colours live in the palettes below)
+   ========================================================================= */
+
+/* C — "Signal": Nordic minimal. Single characterful grotesk, lots of air. */
+[data-brand="c"] {
+  --font-display: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --radius: 12px;
+  --h1-weight: 600;
+  --h1-tracking: -0.03em;
+  --display-tracking: -0.02em;
+}
+
+/* =========================================================================
+   PALETTES  (brand x theme)
+   Token contract:
+     --bg --surface --surface-2 --text --muted --faint
+     --border --border-soft --accent --accent-strong --accent-soft
+     --on-accent --flag --shadow-card --shadow-card-hover
+   ========================================================================= */
+
+/* ---- C · Signal ---- */
+[data-brand="c"][data-theme="light"] {
+  --bg: #ffffff; --surface: #f6f8f7; --surface-2: #eaf0ee;
+  --text: #0e1513; --muted: #5c6a65; --faint: #8a958f;
+  --border: #e5eae7; --border-soft: #eef2f0;
+  --accent: #0f766e; --accent-strong: #0b5f58; --accent-soft: rgba(15,118,110,0.10);
+  --on-accent: #ffffff; --flag: #b23a2e;
+  --header-bg: rgba(255,255,255,0.82);
+  --shadow-card: 0 1px 2px rgba(10,20,18,0.04);
+  --shadow-card-hover: 0 16px 38px -18px rgba(10,40,36,0.24);
+}
+[data-brand="c"][data-theme="dark"] {
+  --bg: #0a0f0e; --surface: #111917; --surface-2: #17211e;
+  --text: #eaf1ee; --muted: #8b9792; --faint: #626d68;
+  --border: #1f2b27; --border-soft: #16211d;
+  --accent: #3bb3a3; --accent-strong: #58c6b8; --accent-soft: rgba(59,179,163,0.14);
+  --on-accent: #08100e; --flag: #e0715a;
+  --header-bg: rgba(10,15,14,0.82);
+  --shadow-card: none;
+  --shadow-card-hover: 0 16px 36px -18px rgba(0,0,0,0.66);
+}
+
+/* =========================================================================
+   BASE
+   ========================================================================= */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  /* No background/color transition on theme switch: Safari (iOS + macOS) stops
+     repainting mid-transition and leaves the page half-switched. Instant is safe. */
+}
+
+/* whisper-quiet accent glow, top-right — the only "atmosphere" that remains */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(52rem 34rem at 88% -12%, var(--accent-soft), transparent 60%);
+  /* Own compositing layer: WebKit otherwise leaves this fixed layer stale when
+     the palette custom properties flip on [data-theme] change. */
+  transform: translateZ(0);
+}
+
+::selection { background: var(--accent); color: var(--on-accent); }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-strong); }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: var(--display-tracking);
+  font-optical-sizing: auto;
+  margin: 0;
+  color: var(--text);
+}
+
+.container {
+  width: 100%; max-width: var(--maxw); margin: 0 auto;
+  /* Respect notch/rounded-corner safe areas (viewport-fit=cover) without shrinking normal phones. */
+  padding: 0 max(1.6rem, env(safe-area-inset-right)) 0 max(1.6rem, env(safe-area-inset-left));
+}
+/* overflow-x: clip contains any wide child (e.g. a report table's intrinsic min-width)
+   without creating a scroll container, so it never breaks the mobile layout and, unlike
+   overflow:hidden, does not disable the report TOC's position:sticky. Long tables still
+   scroll inside their own .table-scroll wrapper. */
+main { flex: 1 0 auto; overflow-x: clip; }
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.skip-link {
+  position: absolute; left: 0; top: 0;
+  transform: translateY(-120%);
+  background: var(--accent); color: var(--on-accent);
+  padding: 0.5rem 0.9rem; z-index: 100;
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* =========================================================================
+   HEADER
+   ========================================================================= */
+.site-header {
+  position: sticky; top: 0; z-index: 40;
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  backdrop-filter: saturate(140%) blur(12px);
+  /* Explicit per-theme translucent bg (set in the palette blocks below). Using a plain rgba
+     custom property instead of color-mix() so WebKit reliably repaints this backdrop-filter
+     layer when [data-theme] flips. */
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-soft);
+}
+.site-header .container {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 1rem; min-height: 64px;
+}
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.16rem; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--text); white-space: nowrap;
+}
+.brand:hover { color: var(--text); }
+.brand span { color: var(--accent); }
+
+.nav { display: flex; align-items: center; gap: 0.1rem; margin-left: auto; }
+.header-tools { display: flex; align-items: center; gap: 0.35rem; }
+.nav a {
+  font-family: var(--font-mono);
+  font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.45rem 0.6rem; border-radius: 5px;
+  position: relative;
+}
+.nav a:hover { color: var(--text); }
+.nav a[aria-current="page"] { color: var(--accent); }
+.nav a[aria-current="page"]::after {
+  content: ""; position: absolute; left: 0.6rem; right: 0.6rem; bottom: 0.1rem;
+  height: 1.5px; background: var(--accent); border-radius: 2px;
+}
+/* CV pill — grouped with the tools, styled like a nav link but bordered + accented. */
+.cv-link {
+  font-family: var(--font-mono);
+  font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.7rem; border-radius: 5px;
+}
+.cv-link:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.cv-link[aria-current="page"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+.lang-toggle {
+  font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.55rem; border-radius: 5px;
+}
+.lang-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+/* theme toggle button (sun in dark, moon in light) */
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; padding: 0;
+  background: transparent; cursor: pointer;
+  color: var(--muted);
+  border: 1px solid var(--border); border-radius: 5px;
+  transition: color 0.18s, border-color 0.18s;
+}
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.theme-toggle svg { width: 16px; height: 16px; display: none; }
+[data-theme="dark"] .theme-toggle .i-sun { display: block; }
+[data-theme="light"] .theme-toggle .i-moon { display: block; }
+
+/* =========================================================================
+   BUTTONS
+   ========================================================================= */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.75rem 1.15rem; border-radius: 6px;
+  border: 1px solid transparent; cursor: pointer;
+  transition: transform 0.08s var(--ease), background 0.18s, border-color 0.18s, color 0.18s;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-strong); color: var(--on-accent); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* =========================================================================
+   SECTION SCAFFOLDING
+   ========================================================================= */
+.section { padding: 4rem 0; }
+.section-tight { padding: 2.5rem 0; }
+
+.sec-head { display: flex; align-items: baseline; gap: 0.85rem; margin-bottom: 1.7rem; }
+.sec-no {
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+  color: var(--accent); letter-spacing: 0.02em;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.sec-head .rule { flex: 1 1 auto; height: 1px; background: var(--border); transform: translateY(-0.2em); }
+
+.lede { color: var(--muted); font-size: 1.08rem; max-width: 46rem; }
+
+/* =========================================================================
+   HERO
+   ========================================================================= */
+.hero { position: relative; padding: 5.5rem 0 3.5rem; }
+.hero .container { position: relative; }
+.hero .role {
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+  margin: 0 0 1.2rem; display: flex; align-items: center; gap: 0.7rem;
+}
+.hero .role::before {
+  content: ""; width: 2rem; height: 2px; background: var(--accent); border-radius: 2px;
+}
+.hero h1 {
+  font-size: clamp(2.6rem, 6.5vw, 4.7rem);
+  font-weight: var(--h1-weight); letter-spacing: var(--h1-tracking); line-height: 1.02;
+  margin: 0 0 1.4rem; max-width: 16ch;
+}
+.hero .hero-line {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem); line-height: 1.3;
+  color: var(--text); max-width: 34ch; margin: 0;
+}
+.hero .hero-sub { color: var(--muted); max-width: 46rem; margin-top: 1.4rem; font-size: 1.05rem; }
+.hero .cta-row { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2.2rem; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.hero .role, .hero h1, .hero .hero-line, .hero .hero-sub, .hero .cta-row { animation: rise 0.7s var(--ease) both; }
+.hero h1 { animation-delay: 0.06s; }
+.hero .hero-line { animation-delay: 0.14s; }
+.hero .hero-sub { animation-delay: 0.22s; }
+.hero .cta-row { animation-delay: 0.30s; }
+
+/* =========================================================================
+   WHAT I DO — numbered list
+   ========================================================================= */
+.dolist { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.05rem; counter-reset: doitem; }
+.dolist li {
+  padding-left: 2.4rem; position: relative; color: var(--text); max-width: 56rem;
+  counter-increment: doitem;
+}
+.dolist li::before {
+  content: counter(doitem, decimal-leading-zero);
+  position: absolute; left: 0; top: 0.2em;
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+  color: var(--accent); letter-spacing: 0.02em;
+}
+
+/* =========================================================================
+   CASE-STUDY CARDS
+   ========================================================================= */
+.card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; margin-top: 0.5rem; }
+.card {
+  position: relative; display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.75rem 1.85rem;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.25s, transform 0.25s var(--ease), box-shadow 0.25s;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-card-hover); }
+
+.card .case-no {
+  font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  margin-bottom: 0.85rem;
+}
+.card .kicker {
+  font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500;
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent);
+}
+.card h3 { font-size: 1.5rem; margin: 0.55rem 0 0.7rem; line-height: 1.14; }
+.card p { color: var(--muted); margin: 0 0 1.2rem; font-size: 1rem; }
+.card .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; margin-bottom: 1.15rem; }
+.tag {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.02em;
+  color: var(--muted); background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  padding: 0.22rem 0.55rem; border-radius: 4px;
+}
+.card .card-cta {
+  font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent);
+  display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.card .card-cta .arw { transition: transform 0.25s var(--ease); }
+.card:hover .card-cta .arw { transform: translateX(4px); }
+
+/* =========================================================================
+   PROSE / DETAIL PAGES
+   ========================================================================= */
+.prose { max-width: 46rem; }
+.prose h2 { font-size: 1.55rem; margin: 2.4rem 0 0.85rem; }
+.prose h3 {
+  margin: 1.9rem 0 0.65rem; color: var(--accent);
+  font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.03em;
+  text-transform: uppercase; font-size: 0.82rem;
+}
+.prose p { color: var(--text); }
+.prose ul { padding-left: 0; list-style: none; }
+.prose li { margin: 0.65rem 0; color: var(--text); padding-left: 1.5rem; position: relative; }
+.prose li::before { content: ""; position: absolute; left: 0; top: 0.72em; width: 7px; height: 7px; background: var(--accent); border-radius: 2px; }
+.prose .muted { color: var(--muted); }
+.muted { color: var(--muted); }
+
+.page-head { padding: 3.4rem 0 0.5rem; }
+.page-head h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0.5rem 0 0; letter-spacing: -0.02em; }
+.page-head .eyebrow { display: flex; align-items: center; gap: 0.5rem; }
+.page-head .backlink { display: inline-block; margin-bottom: 0.9rem; }
+.backlink { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.backlink:hover { color: var(--accent); }
+
+.note {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: var(--radius);
+  padding: 1.1rem 1.3rem; color: var(--muted); font-size: 0.98rem; margin: 1.4rem 0;
+}
+
+.report-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1.4rem 0; align-items: center; }
+.read-time {
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint);
+}
+
+/* =========================================================================
+   NATIVE REPORT PAGE (full case-study body rendered in the site theme)
+   ========================================================================= */
+.report-shell { padding: 1rem 0 4rem; }
+.report-layout { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.6rem; align-items: start; }
+
+/* sticky table of contents */
+.report-toc { position: sticky; top: 84px; align-self: start; }
+.report-toc__inner {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); padding: 1.1rem 1.15rem; max-height: calc(100vh - 108px); overflow: auto;
+}
+.report-toc__title {
+  font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  margin: 0 0 0.7rem;
+}
+.report-toc nav ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+.report-toc nav li { margin: 0.1rem 0; }
+.report-toc nav a {
+  display: block; color: var(--muted); font-size: 0.82rem; line-height: 1.35;
+  padding: 0.28rem 0.4rem; border-radius: 5px; border-left: 2px solid transparent;
+}
+.report-toc nav a:hover { color: var(--accent); background: var(--accent-soft); }
+.report-toc__pdf { margin-top: 1rem; width: 100%; justify-content: center; font-size: 0.7rem; }
+
+/* the injected report HTML */
+.report-body {
+  min-width: 0; /* let grid child shrink so tables can scroll instead of overflowing */
+  max-width: 48rem; color: var(--text); font-size: 1rem; line-height: 1.7;
+}
+.report-body > h1:first-child { font-size: clamp(1.7rem, 3.4vw, 2.35rem); margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+.report-body h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 2.8rem 0 0.7rem; letter-spacing: -0.015em; scroll-margin-top: 84px; }
+.report-body h2 { font-size: 1.4rem; margin: 2.4rem 0 0.75rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border-soft); scroll-margin-top: 84px; }
+.report-body h3 { font-size: 1.12rem; color: var(--accent-strong); margin: 1.9rem 0 0.55rem; scroll-margin-top: 84px; }
+.report-body h4 { font-size: 1rem; margin: 1.4rem 0 0.5rem; color: var(--text); scroll-margin-top: 84px; }
+.report-body p { margin: 0.85rem 0; }
+.report-body strong { color: var(--text); font-weight: 600; }
+.report-body a { color: var(--accent); }
+.report-body a:hover { color: var(--accent-strong); text-decoration: underline; }
+.report-body a.xref { font-family: var(--font-mono); font-size: 0.86em; font-weight: 600; white-space: nowrap; }
+.report-body hr { border: none; border-top: 1px solid var(--border); margin: 1.8rem 0; }
+.report-body ul, .report-body ol { padding-left: 1.4rem; margin: 0.85rem 0; }
+.report-body li { margin: 0.4rem 0; }
+.report-body code {
+  font-family: var(--font-mono); font-size: 0.84em;
+  background: var(--surface-2); color: var(--text);
+  padding: 0.1em 0.36em; border-radius: 4px;
+  word-break: break-all; overflow-wrap: anywhere;
+}
+.report-body pre {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.5;
+}
+.report-body pre code { background: none; padding: 0; word-break: normal; }
+.report-body blockquote {
+  margin: 1.1rem 0; padding: 0.8rem 1.15rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: var(--radius); color: var(--muted);
+}
+.report-body blockquote p { margin: 0.35rem 0; }
+
+/* long / wide tables scroll horizontally instead of breaking the layout */
+.report-body .table-scroll {
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin: 1.2rem 0; max-width: 100%;
+}
+.report-body table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+.report-body th, .report-body td {
+  border-bottom: 1px solid var(--border-soft); border-right: 1px solid var(--border-soft);
+  padding: 0.5rem 0.7rem; text-align: left; vertical-align: top;
+}
+.report-body th:last-child, .report-body td:last-child { border-right: 0; }
+.report-body tr:last-child td { border-bottom: 0; }
+.report-body thead th { background: var(--surface-2); color: var(--text); font-weight: 600; white-space: nowrap; }
+.report-body tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--surface) 60%, transparent); }
+.report-body td code, .report-body th code { white-space: nowrap; }
+
+/* report figures (exhibit screenshots/charts served from /reports/assets/) */
+.report-figure { margin: 1.4rem 0; }
+.report-figure img {
+  display: block; max-width: 100%; height: auto;
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.report-figure figcaption {
+  margin-top: 0.5rem; font-size: 0.85rem; color: var(--faint); line-height: 1.5;
+}
+
+/* =========================================================================
+   CONTACT / DEFINITION ROWS
+   ========================================================================= */
+.deflist { display: grid; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); margin-top: 1.6rem; max-width: 42rem; overflow: hidden; }
+.defrow {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  padding: 1.05rem 1.3rem; background: var(--surface);
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.defrow:last-child { border-bottom: 0; }
+.defrow .k { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+.defrow .v { font-size: 1.02rem; min-width: 0; overflow-wrap: anywhere; }
+
+.skill-block { margin: 1.3rem 0; max-width: 48rem; }
+.skill-block .k { font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.35rem; }
+.skill-block .items { color: var(--muted); }
+
+/* =========================================================================
+   FOOTER
+   ========================================================================= */
+.site-footer {
+  border-top: 1px solid var(--border-soft); color: var(--faint);
+  font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.04em;
+  padding: 2rem 0; margin-top: 3.5rem;
+}
+.site-footer .container { display: flex; justify-content: space-between; gap: 0.6rem 1rem; flex-wrap: wrap; align-items: center; text-transform: uppercase; }
+.site-footer .container > span { min-width: 0; overflow-wrap: anywhere; }
+.site-footer a { color: var(--muted); overflow-wrap: anywhere; }
+.site-footer a:hover { color: var(--accent); }
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width: 960px) {
+  .report-layout { grid-template-columns: 1fr; gap: 1.4rem; }
+  .report-toc { position: static; }
+  .report-toc__inner { max-height: none; }
+  .report-toc nav ol { columns: 2; column-gap: 1.4rem; }
+  .report-toc__pdf { display: none; }
+  .report-body { max-width: none; }
+}
+@media (max-width: 860px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  /* Two-row mobile header.
+     Row 1: brand (left) + actions group [CV · lang · theme] (right).
+     Row 2: the four plain nav links, centered with an even gap, on a hairline-separated band.
+     Keeping CV with the actions leaves row 2 as four similar-width labels, which reads
+     balanced (space-between across five unequal labels looked ragged). */
+  .site-header .container {
+    row-gap: 0; column-gap: 0.5rem;
+    align-items: center; min-height: 0;
+    padding-top: 0.6rem;
+  }
+  .brand { font-size: 1.08rem; }
+  .header-tools { margin-left: auto; gap: 0.4rem; }
+
+  /* Comfortable >=44px touch targets for every interactive header control. */
+  .cv-link, .lang-toggle {
+    display: inline-flex; align-items: center; min-height: 44px;
+  }
+  .theme-toggle { width: 44px; height: 44px; }
+
+  .nav {
+    order: 3; flex-basis: 100%;
+    justify-content: center; gap: 0.15rem;
+    margin-top: 0.55rem;
+    padding: 0.35rem 0 0.4rem;
+    border-top: 1px solid var(--border-soft);
+  }
+  .nav a {
+    display: inline-flex; align-items: center; min-height: 44px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.72rem; letter-spacing: 0.09em;
+  }
+  /* underline for the active link sits just under its band */
+  .nav a[aria-current="page"]::after { left: 0.75rem; right: 0.75rem; bottom: 0.32rem; }
+}
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .hero { padding: 3.5rem 0 2rem; }
+  .section { padding: 3rem 0; }
+  .report-toc nav ol { columns: 1; }
+}
+@media (max-width: 400px) {
+  /* Tightest phones (320px): trim horizontal padding so four labels + gaps never overflow. */
+  .nav { gap: 0.05rem; }
+  .nav a { padding: 0.55rem 0.5rem; letter-spacing: 0.06em; }
+  .cv-link { padding: 0.45rem 0.55rem; }
+  .lang-toggle { padding: 0.4rem 0.45rem; letter-spacing: 0.05em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}

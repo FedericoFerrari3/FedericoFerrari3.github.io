@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, SITE, CV_FILES, type Locale } from '../../config';
+import { useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+const cvHref = CV_FILES[locale];
+---
+<Base locale={locale} title={t('contact.title')} description={t('contact.intro')} path="/contact">
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">{t('site.tagline')}</p>
+      <h1>{t('contact.title')}</h1>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1.25rem;">
+    <div class="container">
+      <p class="lede">{t('contact.intro')}</p>
+      <div class="deflist">
+        <div class="defrow">
+          <span class="k">{t('contact.emailLabel')}</span>
+          <span class="v"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></span>
+        </div>
+        <div class="defrow">
+          <span class="k">{t('contact.githubLabel')}</span>
+          <span class="v"><a href={SITE.github} rel="noopener">{SITE.githubLabel}</a></span>
+        </div>
+        {SITE.linkedin && (
+          <div class="defrow">
+            <span class="k">LinkedIn</span>
+            <span class="v"><a href={SITE.linkedin} rel="noopener">{SITE.linkedin.replace('https://', '')}</a></span>
+          </div>
+        )}
+        <div class="defrow">
+          <span class="k">{t('contact.cvLabel')}</span>
+          <span class="v"><a href={cvHref} download>{t('contact.cvValue')}</a></span>
+        </div>
+      </div>
+      <div class="note" style="margin-top:2rem; max-width:52rem;">{t('contact.availability')}</div>
+    </div>
+  </section>
+</Base>

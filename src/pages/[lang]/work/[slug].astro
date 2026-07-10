@@ -1,0 +1,83 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { LOCALES, type Locale } from '../../../config';
+import { useTranslations } from '../../../i18n/ui';
+import { localizePath } from '../../../i18n/utils';
+import { caseStudies, getCaseStudy } from '../../../data/caseStudies';
+import { loadReport } from '../../../lib/report';
+
+export function getStaticPaths() {
+  return LOCALES.flatMap((lang) =>
+    caseStudies.map((study) => ({ params: { lang, slug: study.slug } }))
+  );
+}
+
+const locale = Astro.params.lang as Locale;
+const slug = Astro.params.slug as string;
+const t = useTranslations(locale);
+const study = getCaseStudy(slug)!;
+const c = study.i18n[locale];
+const report = loadReport(slug);
+---
+<Base locale={locale} title={c.title} description={c.summary} path={`/work/${slug}`}>
+  <section class="page-head">
+    <div class="container">
+      <a class="backlink" href={localizePath('/work', locale)}>← {t('work.backToWork')}</a>
+      <p class="eyebrow" style="margin-top:0.75rem;">{c.kicker}</p>
+      <h1>{c.title}</h1>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1.25rem;">
+    <div class="container">
+      <div class="tags" style="margin-bottom:1.5rem;">
+        {study.tags.map((tag) => <span class="tag">{tag}</span>)}
+      </div>
+
+      <div class="prose">
+        <h2>{t('work.summary')}</h2>
+        <p>{c.summary}</p>
+
+        <h2>{t('work.findings')}</h2>
+        <ul>
+          {c.findings.map((f) => <li>{f}</li>)}
+        </ul>
+
+        <h2>{t('work.demonstrates')}</h2>
+        <ul>
+          {c.demonstrates.map((d) => <li>{d}</li>)}
+        </ul>
+      </div>
+
+      <h2 class="prose" style="font-size:1.35rem; margin:2.4rem 0 0.5rem;">{t('work.report')}</h2>
+      {locale === 'it' && <div class="note">{t('work.reportEnNote')}</div>}
+      <p class="muted" style="max-width:46rem; margin:0.4rem 0 1.1rem;">{t('work.reportIntro')}</p>
+      <div class="report-actions">
+        <a class="btn btn-primary" href={study.reportPdf} download>{t('work.downloadPdf')}</a>
+        <a class="btn btn-ghost" href={study.reportHtml} target="_blank" rel="noopener">{t('work.openHtml')}</a>
+        <span class="read-time">{report.readingMinutes} {t('work.readTime')}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-shell">
+    <div class="container report-layout">
+      {report.toc.length > 0 && (
+        <aside class="report-toc" aria-label={t('work.contents')}>
+          <div class="report-toc__inner">
+            <p class="report-toc__title">{t('work.contents')}</p>
+            <nav>
+              <ol>
+                {report.toc.map((item) => (
+                  <li><a href={`#${item.id}`}>{item.label}</a></li>
+                ))}
+              </ol>
+            </nav>
+            <a class="report-toc__pdf btn btn-ghost" href={study.reportPdf} download>{t('work.downloadPdf')}</a>
+          </div>
+        </aside>
+      )}
+      <article class="report-body" set:html={report.html} />
+    </div>
+  </section>
+</Base>

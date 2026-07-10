@@ -1,0 +1,45 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+---
+<!doctype html>
+<html lang="en" data-brand="c">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        try {
+          var d = document.documentElement;
+          var stored = localStorage.getItem('theme');
+          var prefLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          var theme = stored || (prefLight ? 'light' : 'dark');
+          d.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+    <title>Page not found · {SITE.name}</title>
+    <meta name="description" content="Page not found." />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0f0e" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main id="main" class="container" style="text-align:center; padding: 18vh 1rem;">
+      <p class="eyebrow">404</p>
+      <h1 style="font-size:2rem; margin:0 0 0.75rem;">Page not found</h1>
+      <p class="lede" style="margin:0 auto 1.75rem;">The page you are looking for does not exist or was moved.</p>
+      <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-primary" href="/en/">Home (English)</a>
+        <a class="btn btn-ghost" href="/it/">Home (Italiano)</a>
+      </div>
+    </main>
+  </body>
+</html>

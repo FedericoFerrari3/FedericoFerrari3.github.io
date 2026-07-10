@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>report_eli5defi_v2_senior.md</title>
+<style>
+@page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+  font-size: 10.5pt; line-height: 1.5; color: #1a1a1a; max-width: 100%;
+}
+h1, h2, h3, h4 { font-family: "DejaVu Sans", Helvetica, Arial, sans-serif; color: #0b2545; line-height: 1.25; }
+h1 { font-size: 20pt; border-bottom: 3px solid #0b2545; padding-bottom: 6px; page-break-before: always; }
+h1:first-of-type { page-break-before: avoid; }
+h2 { font-size: 14.5pt; margin-top: 22px; border-bottom: 1px solid #c9d3e0; padding-bottom: 4px; page-break-after: avoid; }
+h3 { font-size: 12pt; color: #173a5e; page-break-after: avoid; }
+h4 { font-size: 10.5pt; color: #173a5e; }
+p { margin: 7px 0; }
+a { color: #0b2545; text-decoration: none; }
+a.xref { color: #0b66c3; font-weight: 600; text-decoration: none; white-space: nowrap; }
+strong { color: #08203f; }
+hr { border: none; border-top: 1px solid #d0d7de; margin: 16px 0; }
+/* identifiers (addresses/tx hashes) must never split across lines: a split value
+   cannot be copy-pasted from the PDF. An inline code span that does not fit the
+   remaining line drops as a whole unit to the next line; the longest identifier
+   (88-char Solana signature ~159mm at 8.5pt mono) still fits the 178mm text width. */
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.5pt; color: #1a1a1a; background: #f3f5f8; padding: 1px 4px; border-radius: 3px; white-space: nowrap; }
+pre { background: #0d1117; color: #c9d1d9; padding: 10px 12px; border-radius: 6px; overflow-wrap: anywhere;
+      font-family: "DejaVu Sans Mono", monospace; font-size: 8pt; line-height: 1.45; page-break-inside: avoid; }
+pre code { background: none; color: inherit; padding: 0; font-size: 8pt; }
+blockquote { margin: 10px 0; padding: 8px 14px; background: #f6f8fa; border-left: 4px solid #0b66c3; color: #243b53; }
+blockquote p { margin: 4px 0; }
+/* tables: allow long tables to flow across pages and repeat the header row */
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9pt; page-break-inside: auto; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+th, td { border: 1px solid #c4ccd6; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #0b2545; color: #fff; font-family: "DejaVu Sans", sans-serif; font-size: 8.5pt; }
+tr:nth-child(even) td { background: #f4f7fb; }
+td[align="right"], th[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
+/* figures: image + caption kept together */
+figure { margin: 12px auto; text-align: center; page-break-inside: avoid; }
+img { max-width: 100%; height: auto; display: block; margin: 0 auto; border: 1px solid #d0d7de; border-radius: 4px; }
+figcaption { font-size: 8.5pt; color: #57606a; text-align: center; margin: 5px auto 0; max-width: 92%; }
+ul, ol { margin: 7px 0 7px 4px; padding-left: 20px; }
+li { margin: 3px 0; }
+/* on-screen view only: render as a centred A4 "page" with margins around it,
+   like a PDF/Word document. Does not affect the printed PDF (@page rules above). */
+@media screen {
+  html { background: #e7ebf0; }
+  body {
+    max-width: 210mm; margin: 24px auto; padding: 22mm 18mm;
+    background: #fff; box-shadow: 0 1px 16px rgba(11, 37, 69, 0.15); border-radius: 2px;
+  }
+}
+</style>
+</head><body>
+<h1 id="part-cover">On-Chain Forensic Report: Multi-Victim Wallet-Drainer and Cross-Chain Laundering Campaign</h1>
+<p><strong>Subject:</strong> Drain of victim wallet <code>0x7eee…ac76</code> and associated cluster, first surfaced publicly by Eli5DeFi (X/Twitter).<br>
+<strong>Laundering corridor:</strong> BSC / EVM → Solana → Tron, consolidated through centralized-exchange (CEX) infrastructure (KuCoin, HTX; OKX and HitBTC observed peripherally).<br>
+<strong>Core technique:</strong> deposit/withdrawal timing-and-amount correlation ("time analysis") to bridge CEX hot-wallet boundaries.<br>
+<strong>Classification:</strong> Public (portfolio edition); all underlying data is publicly observable on-chain.<br>
+<strong>Report ID:</strong> ELI5DEFI-2026-001<br>
+<strong>Author:</strong> Federico Ferrari<br>
+<strong>Date of issue:</strong> 9 July 2026<br>
+<strong>Investigation window:</strong> on-chain activity observed approximately <strong>19 Apr 2026 – 09 May 2026</strong> (UTC); publicly surfaced by Eli5DeFi on <strong>10 May 2026</strong>.</p>
+<hr>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#sec-1">1. Important notice on confidence and standard of proof</a></li>
+<li><a href="#sec-2">2. Executive summary</a></li>
+<li><a href="#sec-3">3. Scope, objectives and limitations</a></li>
+<li><a href="#sec-4">4. Methodology and tooling</a></li>
+<li><a href="#sec-5">5. Subjects and identifiers (quick reference)</a></li>
+<li><a href="#sec-6">6. The time-analysis method (de-anonymizing CEX hops)</a></li>
+<li><a href="#part-i"><strong>PART I: Drain and First Consolidation</strong></a><ul>
+<li><a href="#sec-7">7. Origin: drain of V1 and entry into the actor cluster</a></li>
+<li><a href="#sec-8">8. Obfuscation via 1inch limit orders: recovering the beneficiary from calldata</a></li>
+</ul>
+</li>
+<li><a href="#part-ii"><strong>PART II: Cross-Chain Laundering Through CEX Hot Wallets</strong></a><ul>
+<li><a href="#sec-9">9. HTX hop: BSC deposit → Solana withdrawal</a></li>
+<li><a href="#sec-10">10. KuCoin hop: Solana deposit → Tron withdrawal</a></li>
+</ul>
+</li>
+<li><a href="#part-iii"><strong>PART III: Second Victim Cluster and Tron Consolidation</strong></a><ul>
+<li><a href="#sec-11">11. Pivoting back from the consolidation address: additional victims</a></li>
+<li><a href="#sec-12">12. Tron consolidation layer</a></li>
+</ul>
+</li>
+<li><a href="#part-iv"><strong>PART IV: Assessment, Red Flags and Recommendations</strong></a><ul>
+<li><a href="#sec-13">13. Findings and overall assessment</a></li>
+<li><a href="#sec-14">14. Indicators / red flags (FATF-aligned framing)</a></li>
+<li><a href="#sec-15">15. Open lines of inquiry</a></li>
+<li><a href="#sec-16">16. Recommendations and next steps</a></li>
+</ul>
+</li>
+<li><a href="#part-appendices"><strong>Appendices</strong></a><ul>
+<li><a href="#sec-17">Appendix A: Full identifier list</a></li>
+<li><a href="#sec-18">Appendix B: Time-analysis pairings (evidence table)</a></li>
+<li><a href="#sec-19">Appendix C: Source-capture → figure mapping</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="sec-1">1. Important notice on confidence and standard of proof</h2>
+<p>This document is an intelligence product, not a legal determination. Blockchain
+analysis establishes the movement of value between addresses. It does not, on its own,
+establish the real-world identity or intent of the natural or legal persons who control
+those addresses. Every attribution of an address to an exchange, to a victim, or to the
+threat actor carries an explicit confidence level and should be read at that level.</p>
+<p>Confidence terms are used consistently throughout:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning in this report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Confirmed / fact</strong></td>
+<td>Directly observable on a public block explorer or in an attached capture (for example a transaction value, timestamp, or counterparty label shown by the explorer).</td>
+</tr>
+<tr>
+<td><strong>High confidence</strong></td>
+<td>Inference supported by several mutually reinforcing on-chain indicators, with no competing explanation identified.</td>
+</tr>
+<tr>
+<td><strong>Moderate confidence</strong></td>
+<td>Inference supported by a recognized pattern (for example size-and-timestamp correlation across a CEX) but with residual ambiguity.</td>
+</tr>
+<tr>
+<td><strong>Low confidence / investigative lead</strong></td>
+<td>A plausible link not yet corroborated; included to direct further work, not to support a conclusion.</td>
+</tr>
+</tbody>
+</table>
+<p>Two conventions govern the figures. Dollar values for victim losses and aggregate flows are
+deliberately presented rounded (for example ≈ $90k rather than a to-the-dollar figure); the
+rounding is presentational and does not signal doubt about the underlying observation. A
+value shown to the cent (for example <code>27,471.1699 USDT</code>) is transcribed directly from a
+block-explorer capture and is treated as a confirmed observation of that specific
+transaction.</p>
+<blockquote>
+<p><strong>Scope and completeness.</strong> This is a demonstrative investigative work product, not an
+exhaustive or court-grade account of the campaign; its purpose and boundaries are set out
+in <a class="xref" href="#sec-3-5">§3.5</a>, and open lines of inquiry are collected in <a class="xref" href="#sec-15">§15</a>. Where an intermediate pass-through
+hop was verified on-chain but adds no analytical value, the hop is described and marked as
+verified rather than reproduced as a figure, to keep the evidentiary chain concise.</p>
+</blockquote>
+<hr>
+<h2 id="sec-2">2. Executive summary</h2>
+<p>Between approximately <strong>19 April and 9 May 2026</strong>, an organized threat actor drained
+multiple externally-owned wallets and laundered the proceeds through a cross-chain corridor
+built to break on-chain traceability at centralized-exchange boundaries. One of the drained
+wallets was <code>0x7eee…ac76</code>; its compromise was brought to public attention by the Eli5DeFi
+account on X on <strong>10 May 2026</strong> (<code>https://x.com/Eli5defi/status/2053261549750595836</code>).
+Eli5DeFi was the first to report the drain publicly, which is not the same as being the
+first wallet hit.</p>
+<p>Reconstructed hop by hop (<a class="xref" href="#sec-7">§7</a>–<a class="xref" href="#sec-12">§12</a>), the laundering methodology follows a repeating pattern:</p>
+<ol>
+<li><strong>Drain and first consolidation (BSC/EVM).</strong> Victim funds are swept to actor-controlled
+   addresses and aggregated through several pass-through hops (<a class="xref" href="#sec-7">§7</a>, Fig. 1).</li>
+<li><strong>Obfuscation via 1inch order flows.</strong> Value is routed through 1inch limit-order
+   <code>create</code> calls (<a class="xref" href="#sec-8">§8</a>, Fig. 2–3) and, on a parallel leg, 1inch <code>arbitraryCalls</code>
+   transactions (<a class="xref" href="#sec-11-2">§11.2</a>, Fig. 9); in both variants the calldata encodes the true
+   beneficiary address, which can be recovered by decoding the order fields.</li>
+<li><strong>CEX chain-hopping.</strong> Funds enter HTX and KuCoin hot-wallet infrastructure on one chain
+   and leave on another (BSC→Solana, then Solana→Tron), severing the direct on-chain link
+   (<a class="xref" href="#sec-9">§9</a>–<a class="xref" href="#sec-10">§10</a>).</li>
+<li><strong>De-anonymization by time analysis.</strong> Because the exchange settles the transfer on its
+   internal ledger, the only bridge across the hot-wallet boundary is correlation of deposit
+   and withdrawal by amount and timestamp. This is the central analytical technique of the
+   investigation (<a class="xref" href="#sec-6">§6</a>).</li>
+<li><strong>Final consolidation (Tron/USDT).</strong> Laundered value is gathered on Tron into a small
+   number of USDT consolidation addresses, fed in part back out of HTX and KuCoin (<a class="xref" href="#sec-12">§12</a>).</li>
+</ol>
+<p>Tracing back from the Tron consolidation layer and re-applying the same time analysis
+surfaced additional victims beyond the original <code>0x7eee…ac76</code> (<a class="xref" href="#sec-11">§11</a>).</p>
+<p><strong>Headline figures (rounded).</strong> The consolidation path anchored at the actor's first
+consolidation address <code>0x9cc…c665</code> carries roughly <strong>$290k</strong> of aggregate throughput
+(Fig. 1), which the analyst assesses is very likely stolen proceeds in the aggregate. Only the directly observable, unobfuscated
+transfers are enumerated below as named victims: V1 at ≈ $16k, plus V7–V9 at ≈ $90k, ≈ $25k
+and ≈ $10k respectively (<a class="xref" href="#sec-7-1">§7.1</a>). The balance reached the address through further obfuscation
+paths that were not reconstructed. The separate V2 path adds ≈ $54k (<a class="xref" href="#sec-8">§8</a>), bringing the total
+attributable to this cluster alone to roughly <strong>$345k</strong>; the Tron consolidation layer
+(<a class="xref" href="#sec-12">§12</a>) then shows further large inflows on top of that, so the true campaign figure is
+materially higher. Individual laundered tranches downstream fall in the <strong>~$19k–$57k</strong> range
+per hop. On the Tron layer, one address received a single inbound transfer of <strong>≈ 226,714.93
+USDT</strong> and a parallel address <strong>≈ 149,741.49 USDT</strong>. No single reconciled, double-count-free
+campaign total is asserted here (<a class="xref" href="#sec-13">§13</a>, <a class="xref" href="#sec-15">§15</a>).</p>
+<p><strong>Key attributions (confidence):</strong></p>
+<ul>
+<li>The KuCoin and HTX deposit and withdrawal legs are <em>confirmed</em> against block-explorer
+  labels (HTX Hot Wallet, KuCoin "Kucoin 4", KuCoin Deposit Address).</li>
+<li>The deposit→withdrawal <em>pairings</em> across each CEX are <em>moderate-to-high confidence</em>,
+  resting on size-and-timestamp correlation (<a class="xref" href="#sec-6">§6</a>, <a class="xref" href="#sec-9">§9</a>–<a class="xref" href="#sec-11">§11</a>).</li>
+<li>Common control of the actor-side addresses across hops is <em>moderate confidence</em> and is
+  the principal item requiring further corroboration (<a class="xref" href="#sec-13">§13</a>, <a class="xref" href="#sec-15">§15</a>).</li>
+</ul>
+<hr>
+<h2 id="sec-3">3. Scope, objectives and limitations</h2>
+<h3 id="sec-3-1">3.1 Objectives</h3>
+<ul>
+<li>Reconstruct the flow of funds from the originating drain of <code>0x7eee…ac76</code> to the point
+  of off-ramp or consolidation.</li>
+<li>Document and formalize the time-analysis methodology used to cross CEX boundaries.</li>
+<li>Identify exchange deposit addresses and consolidation addresses suitable for a
+  Request-for-Information (RFI) to the relevant exchanges and, where appropriate, referral
+  to law enforcement.</li>
+<li>Surface additional victims linked to the same actor cluster.</li>
+</ul>
+<h3 id="sec-3-2">3.2 In scope</h3>
+<p>On-chain activity on BNB Smart Chain (BSC), Ethereum, Solana and Tron associated with the
+addresses listed in <a class="xref" href="#sec-5">§5</a> and Appendix A (<a class="xref" href="#sec-17">§17</a>), within the observed window (<a class="xref" href="#sec-3-4">§3.4</a>).</p>
+<h3 id="sec-3-3">3.3 Out of scope / not attempted</h3>
+<ul>
+<li>Identification of the natural or legal persons behind any address.</li>
+<li>Off-chain KYC resolution (only the exchanges can perform this; see RFI recommendations, <a class="xref" href="#sec-16">§16</a>). A
+  portion of value also appears to have transited mixing services (assessed, low–moderate
+  confidence), placing it beyond explorer-only tracing.</li>
+<li>Full recovery of the initial intrusion vector. The available evidence is most consistent
+  with private-key compromise (assessed; see <a class="xref" href="#sec-3-5">§3.5</a> and <a class="xref" href="#sec-15">§15</a>) rather than a per-transaction
+  phishing or approval exploit, but the intrusion itself is out of scope and is not
+  forensically confirmed here.</li>
+</ul>
+<h3 id="sec-3-4">3.4 Limitations</h3>
+<ul>
+<li>Victim-loss and aggregate figures are presented rounded (<a class="xref" href="#sec-1">§1</a>); per-transaction values
+  cited to the cent are transcribed from explorer captures.</li>
+<li><strong>Timestamp basis.</strong> Explorer captures are read as UTC. Where a capture shows a relative
+  age ("52 days ago") alongside an absolute timestamp, the absolute UTC value is used.</li>
+<li>The investigation does not claim to have traced every branch. The actor's graph fans out
+  widely (Fig. 1), and only the legs needed to establish the pattern and reach the
+  consolidation layer were followed to completion.</li>
+</ul>
+<h3 id="sec-3-5">3.5 Purpose and completeness</h3>
+<p>This report is a demonstrative investigative work product, prepared on a best-effort basis
+within a bounded time budget. Its purpose is to evidence methodology and analytical
+tradecraft, not to stand as a complete or court-grade account of the campaign. Tracing was
+carried far enough to establish and corroborate the laundering pattern and the principal
+flows, and was deliberately not pushed to exhaustion. Several branches that transited CEX
+infrastructure, along with value the analyst assesses likely passed through mixing services,
+were not fully resolved; further victims or off-ramps beyond those listed may exist. Where a
+flow was left open, that is stated explicitly.</p>
+<p>The assessed initial-compromise vector is private-key compromise: multiple victim wallets
+are swept across more than one chain (<a class="xref" href="#sec-8">§8</a>). This assessment is held at moderate confidence and
+sits outside the on-chain scope of the report.</p>
+<hr>
+<h2 id="sec-4">4. Methodology and tooling</h2>
+<p><strong>Approach.</strong> Standard hop-by-hop fund-flow tracing, combined with deposit/withdrawal
+timing-and-amount correlation at CEX boundaries (formalized in <a class="xref" href="#sec-6">§6</a>) and with calldata
+decoding of 1inch order flows (limit-order <code>create</code> and <code>arbitraryCalls</code>) to recover
+beneficiary addresses (<a class="xref" href="#sec-8">§8</a>, <a class="xref" href="#sec-11-2">§11.2</a>).</p>
+<p><strong>Primary sources.</strong> Public block explorers: BscScan (BSC), Etherscan (Ethereum), Solscan 
+(Solana), and Tronscan (Tron), together with an attribution and graph provider
+(Arkham Intelligence, evidenced by the captured graph views, Fig. 1).</p>
+<p><strong>Evidentiary discipline.</strong> Every material hop is anchored to (a) a transaction hash or
+explorer view and (b), where attribution is asserted, the explorer-provided entity label
+(for example "HTX: Hot Wallet" or "KuCoin: Deposit Address"). Inferences that go beyond what
+an explorer shows are labelled with the confidence terms in <a class="xref" href="#sec-1">§1</a>.</p>
+<p><strong>A note on the USDT-TRON token contract.</strong> Several Tron captures show
+<code>TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t</code> (abbreviated <code>TR7NHq…Lj6t</code>) in the asset column. This is
+the official Tether USDT TRC-20 contract, that is, the <em>token</em> rather than a participant
+address. It is excluded from the address-of-interest list to avoid creating a false node, a
+distinction worth keeping in mind when reading the Tron-side captures (Fig. 8, 10–11).</p>
+<hr>
+<h2 id="sec-5">5. Subjects and identifiers (quick reference)</h2>
+<p>For readability, identifiers in the tables of this section are shown in short form
+(leading and trailing characters, on a single line); the full values are consolidated in
+Appendix A (<a class="xref" href="#sec-17">§17</a>).</p>
+<h3 id="sec-5-1">5.1 Victims</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Address</th>
+<th>Basis</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1</td>
+<td><code>0x7eee…ac76</code></td>
+<td>Primary drain, per Eli5DeFi; drain tx <code>0x83e8…f6f6</code></td>
+<td>Confirmed (event), attribution per source</td>
+</tr>
+<tr>
+<td>V2</td>
+<td><code>0x5c71…9e1f</code></td>
+<td>Already compromised (ETH side drained); actor funded 0.02 BNB (<code>0xf741…03bc</code>) to also sweep the BSC side; see <a class="xref" href="#sec-8">§8</a></td>
+<td>High</td>
+</tr>
+<tr>
+<td>V3</td>
+<td><code>0x8016…f978</code></td>
+<td>Linked via bridger <code>0xbcf1…6089</code></td>
+<td>Moderate (lead)</td>
+</tr>
+<tr>
+<td>V4</td>
+<td><code>0x5acb…a508</code></td>
+<td>Linked via bridger <code>0xbcf1…6089</code></td>
+<td>Moderate (lead)</td>
+</tr>
+<tr>
+<td>V5</td>
+<td><code>0xb089…c85e</code></td>
+<td>Linked via bridger <code>0xbcf1…6089</code></td>
+<td>Moderate (lead)</td>
+</tr>
+<tr>
+<td>V6</td>
+<td><code>0x20ef…ee90</code></td>
+<td>Linked via bridger <code>0xbcf1…6089</code></td>
+<td>Moderate (lead)</td>
+</tr>
+<tr>
+<td>V7</td>
+<td><code>0x48ad…5860</code></td>
+<td>Direct transfer to actor consolidation <code>0x9cc…c665</code>; ≈ $90k drained (<a class="xref" href="#sec-7-1">§7.1</a>)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>V8</td>
+<td><code>0x1F5f…F2b0</code></td>
+<td>Direct transfer to actor consolidation <code>0x9cc…c665</code>; ≈ $25k drained (<a class="xref" href="#sec-7-1">§7.1</a>)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>V9</td>
+<td><code>0x0446…a93f</code></td>
+<td>Direct transfer to actor consolidation <code>0x9cc…c665</code>; ≈ $10k drained (<a class="xref" href="#sec-7-1">§7.1</a>)</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-5-2">5.2 Actor-controlled addresses (EVM)</h3>
+<p>Only addresses with an evidenced role in the narrative are tabulated below. The intermediate
+pass-through and fan-out hops on the upper path (<code>0x4ed0…</code>, <code>0xc450…</code>, <code>0xa499…</code>, fan-out
+node <code>0xDE9d…</code>, secondary node <code>0x623E…</code>) carry negligible residual balances and are shown in
+the master graph (Fig. 1) rather than repeated here.</p>
+<table>
+<thead>
+<tr>
+<th>Address</th>
+<th>Role (as evidenced)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x9cc…c665</code></td>
+<td>Actor consolidation address; direct-transfer destination from V1 and V7–V9; anchors a consolidation path carrying ≈ $290k aggregate throughput (<a class="xref" href="#sec-7-1">§7.1</a>)</td>
+</tr>
+<tr>
+<td><code>0x364b…8c44</code></td>
+<td>V2 path hop 1</td>
+</tr>
+<tr>
+<td><code>0x0c89…0871</code></td>
+<td>V2 path hop 2</td>
+</tr>
+<tr>
+<td><code>0x817f…979c</code></td>
+<td>V2 path hop 3; 1inch order maker (Fig. 2–3)</td>
+</tr>
+<tr>
+<td><code>0xb3fD…D9C7</code></td>
+<td>Beneficiary recovered from 1inch order <code>receiver</code> field (Fig. 3)</td>
+</tr>
+<tr>
+<td><code>0x02Da…bB20</code></td>
+<td>Second bridging address (paired with the recovered beneficiary); link verified on-chain, supporting capture not reproduced (<a class="xref" href="#sec-8">§8</a>)</td>
+</tr>
+<tr>
+<td><code>0xbcf1…6089</code></td>
+<td>Bridger linking V3–V6</td>
+</tr>
+<tr>
+<td><code>0xE62a…Fa4a</code></td>
+<td>BSC sender in additional-victim leg (<code>0xee34…d4a8</code>)</td>
+</tr>
+<tr>
+<td><code>0x40a0…A152</code></td>
+<td>Sender in captured HTX BNB deposit (Fig. 4); one verified pass-through hop downstream of the <a class="xref" href="#sec-8">§8</a> bridging addresses (intermediate hop not reproduced)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-5-3">5.3 Exchange deposit addresses (explorer-labelled)</h3>
+<p>Only the exchange deposit addresses are listed here; these are the actionable RFI targets.
+Exchange hot and withdrawal wallets (HTX Hot Wallet, KuCoin Hot Wallet 2, "Kucoin 4", OKX
+Hot Wallet 8) are exchange-owned infrastructure rather than actor-specific, and appear in the
+figures where relevant.</p>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Address</th>
+<th>Chain</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KuCoin Deposit Address (V1 fan-out)</td>
+<td><code>0x544B…5fFe</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+<tr>
+<td>KuCoin Deposit Address (V1 fan-out)</td>
+<td><code>0x3F5a…02E6</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+<tr>
+<td>KuCoin Deposit Address (V1 fan-out)</td>
+<td><code>0x827C…50d1</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+<tr>
+<td>KuCoin Deposit Address (V1 fan-out)</td>
+<td><code>0xb555…acE3</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+<tr>
+<td>KuCoin Deposit Address (V1 fan-out)</td>
+<td><code>0x5c5B…5bdD</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+<tr>
+<td>KuCoin Deposit Address (V1 fan-out)</td>
+<td><code>0x7a5e…0eAd</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+<tr>
+<td>HitBTC Deposit (V1 fan-out)</td>
+<td><code>0xBaB2…b135</code></td>
+<td>EVM</td>
+<td>Fig. 1</td>
+</tr>
+</tbody>
+</table>
+<p>The equivalent deposit addresses on the V2 path have not yet been expanded to full form and
+remain an open item (<a class="xref" href="#sec-15">§15</a>).</p>
+<h3 id="sec-5-4">5.4 Consolidation / staging layer (Tron, USDT)</h3>
+<table>
+<thead>
+<tr>
+<th>Address</th>
+<th>Role (as evidenced)</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TQLXH45…m62m</code></td>
+<td>Terminal consolidation address for the recovered flows (<a class="xref" href="#sec-10">§10</a>–<a class="xref" href="#sec-12">§12</a>)</td>
+<td>High (topology verified; intermediate hop not reproduced)</td>
+</tr>
+<tr>
+<td><code>TYZfYaj…ZE84</code></td>
+<td>Recipient of KuCoin withdrawal (Fig. 7)</td>
+<td>Confirmed (tx)</td>
+</tr>
+<tr>
+<td><code>TF1KHXD…Rcv4</code></td>
+<td>Staging address, second cluster (Fig. 8); direct transfer into <code>TQLXH45…</code> (<a class="xref" href="#sec-11-1">§11.1</a>)</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>TRHcAhJ…AmZU</code></td>
+<td>Received ≈226,714.93 USDT (Fig. 10); fed consolidation</td>
+<td>Confirmed (tx)</td>
+</tr>
+<tr>
+<td><code>TTMdreb…L3xn</code></td>
+<td>Received ≈149,741.49 USDT (Fig. 11)</td>
+<td>Confirmed (tx)</td>
+</tr>
+<tr>
+<td><code>TUdbHz1…bhdA</code></td>
+<td>Pre-consolidation, HTX-fed (Fig. 10)</td>
+<td>Confirmed (tx)</td>
+</tr>
+<tr>
+<td><code>TKiPseUe5o…kpBV9Qb</code></td>
+<td>Pre-consolidation, HTX-fed (Fig. 11)</td>
+<td>Confirmed (tx)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-5-5">5.5 Solana addresses</h3>
+<table>
+<thead>
+<tr>
+<th>Address</th>
+<th>Role</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>5vC4of…gt8eqH</code></td>
+<td>Recipient of HTX USDT withdrawal (actor Solana account)</td>
+<td>Fig. 5</td>
+</tr>
+<tr>
+<td><code>J1XSfoR9…hb1odK</code></td>
+<td>Actor Solana wallet forwarding into the KuCoin deposit</td>
+<td>Fig. 6</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="sec-6">6. The time-analysis method (de-anonymizing CEX hops)</h2>
+<h3 id="sec-6-1">6.1 The problem</h3>
+<p>When laundered value enters a centralized exchange, the on-chain trail stops at the
+exchange's hot wallet. The exchange credits an internal ledger and later pays out from a
+different hot wallet, often on a different blockchain. No direct on-chain edge links the
+deposit to the withdrawal; that link lives inside the exchange's private books. This gap is
+what the actor exploits by chain-hopping through HTX and KuCoin.</p>
+<h3 id="sec-6-2">6.2 The technique</h3>
+<p>Time analysis reconstructs the missing edge probabilistically, by matching a deposit to a
+withdrawal on three jointly observable properties:</p>
+<ol>
+<li><strong>Amount.</strong> The withdrawal value equals the deposit value net of conversion and fees (for
+   example, BNB in against USDT out at the prevailing rate).</li>
+<li><strong>Timestamp.</strong> The withdrawal follows the deposit within a short, plausible window
+   (seconds to minutes in the cases observed here).</li>
+<li><strong>Asset and destination chain.</strong> Consistent with the actor's known corridor
+   (BSC→Solana→Tron).</li>
+</ol>
+<p>A single match is suggestive. A repeating, self-consistent chain of matches across several
+independent hops (<a class="xref" href="#sec-9">§9</a>–<a class="xref" href="#sec-11">§11</a>) is much harder to write off as coincidence, and lifts the combined
+inference to moderate-to-high confidence. The output is still a correlation, not proof that
+the exchange moved those particular coins. It is weakest where the amount is round or the
+deposit lands in a busy window, and strongest where the amount is distinctive and the timing
+tight. Each pairing below is rated on its own merits.</p>
+<h3 id="sec-6-3">6.3 Worked example (the May-01-2026 chain)</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Event</th>
+<th style="text-align: right;">Amount (as captured)</th>
+<th>Timestamp (UTC)</th>
+<th>Δt</th>
+<th>Fig.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td><strong>Deposit</strong> BNB → HTX Hot Wallet</td>
+<td style="text-align: right;">44.4279 BNB (≈ $27,340.94)</td>
+<td>01 May 2026 14:45:19</td>
+<td>n/a</td>
+<td>4</td>
+</tr>
+<tr>
+<td>B</td>
+<td><strong>Withdrawal</strong> HTX → Solana (USDT)</td>
+<td style="text-align: right;">27,471.1699 USDT (≈ $27,471.16)</td>
+<td>01 May 2026 14:47:13</td>
+<td>+≈2 min</td>
+<td>5</td>
+</tr>
+<tr>
+<td>C</td>
+<td><strong>Deposit</strong> Solana → KuCoin (USDT)</td>
+<td style="text-align: right;">27,471.1699 USDT (≈ $27,471.16)</td>
+<td>01 May 2026 15:10:16</td>
+<td>+≈23 min</td>
+<td>6</td>
+</tr>
+<tr>
+<td>D</td>
+<td><strong>Withdrawal</strong> KuCoin "Kucoin 4" → Tron (USDT)</td>
+<td style="text-align: right;">27,469.5 USDT</td>
+<td>01 May 2026 15:13:42</td>
+<td>+≈3 min</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>The chain is internally consistent from end to end. The A→B leg (the HTX hop) pairs a BNB
+deposit worth ≈$27,340.94 with a 27,471.1699 USDT withdrawal about two minutes later; the
+small (~$130) difference is the expected result of the BNB→USDT conversion, a volatile asset
+priced at deposit against a stablecoin at withdrawal, net of fees. The B→C leg is what
+joins the two exchanges: the 27,471.1699 USDT that leaves HTX on Solana arrives at
+the KuCoin deposit leg to the cent, tying the two CEX hops into a single flow rather than two
+coincidentally similar traces. The C→D leg (the KuCoin hop) then pairs that 27,471.1699 USDT
+deposit with a 27,469.5 USDT withdrawal on Tron about three minutes later, the ≈1.67 USDT
+difference matching the KuCoin withdrawal fee. The one join that time analysis cannot observe
+directly, namely which deposit funded which withdrawal inside each exchange, is exactly what
+an RFI (<a class="xref" href="#sec-16">§16</a>) would settle.</p>
+<hr>
+<h1 id="part-i">PART I: DRAIN AND FIRST CONSOLIDATION</h1>
+<h2 id="sec-7">7. Origin: drain of V1 and entry into the actor cluster</h2>
+<p><strong>Confirmed (event).</strong> Victim wallet <code>0x7eee669d684b6096a6ad67e993f7d384ad02ac76</code> (V1) was
+drained on <strong>09 May 2026 at 15:55:03 UTC</strong> in transaction
+<code>0x83e84825464b53e83e1102a399a779cf6797c38f99191b6cda2387cf6409f6f6</code>,
+publicly flagged by Eli5DeFi (source post:
+<code>https://x.com/Eli5defi/status/2053261549750595836</code>). The wallet was emptied of its token
+holdings, the MEGA token among them, for an estimated ≈ $16k.</p>
+<p><strong>Confirmed (graph).</strong> Value moved by direct transfer to
+<code>0x9cc0831db1b224fd675a21ac0d0adda82631c665</code>, which is itself an actor consolidation address
+rather than a single-hop relay. Besides V1 it receives direct-transfer drains from several
+other victims (<a class="xref" href="#sec-7-1">§7.1</a>); from there, value passes through a series of pass-through hops before
+fanning out to multiple exchange deposit addresses (Fig. 1).</p>
+<figure><img alt="Arkham flow graph: BSC/EVM entry through pass-through hops to a fan-out of KuCoin/HitBTC deposit addresses; lower branch shows the V2 path terminating at 1inch." src="assets/fig01_arkham_master_flow.png"><figcaption>Fig. 1. Master fund-flow graph (Arkham Intelligence). Left: actor entry <code>0x9cc…c665</code>. Centre: pass-through hops <code>0x4ed0…</code> → <code>0xc450…</code> → <code>0xa499…</code> → fan-out node <code>0xDE9d…</code>. Right: terminal KuCoin deposit addresses (and one HitBTC deposit). Lower row: the V2 chain <code>0x5c71…</code> → <code>0x364b…</code> → <code>0x0c89…</code> → <code>0x817f…</code> → 1inch NativeOrder. Edge labels are USD-equivalent throughput; node figures are residual balances. The terminal deposit-address labels are expanded in full in <a class="xref" href="#sec-5-3">§5.3</a>; remaining truncated intermediaries are tracked in <a class="xref" href="#sec-15">§15</a>.</figcaption></figure>
+<p><strong>Observation (high confidence).</strong> Edge values on the upper path are large and increase
+across hops: ≈$166.84K leaves <code>0x9cc…c665</code>, merges with further inflows at the next hop
+<code>0x4ed0…</code>, and continues as ≈$292K across the following two hops before ≈$193.5K enters the
+fan-out node. The step-up from ≈$166.84K to ≈$292K confirms that the path aggregates value
+from more than one source: <code>0x9cc…c665</code> is the entry point, but the ≈$290k aggregate forms at
+<code>0x4ed0…</code>, not at <code>0x9cc…c665</code> itself. Edge labels are aggregate USD-equivalent throughput,
+not victim-specific loss. The analyst's working assessment is that the full ≈$290k carried by
+this path is very likely stolen proceeds; even so, only the directly observable, unobfuscated
+transfers are enumerated as named victims below (<a class="xref" href="#sec-7-1">§7.1</a>). The balance reached the path through
+further obfuscation that was not reconstructed within the report's time budget, and is
+therefore left unattributed rather than assigned to specific victims.</p>
+<h3 id="sec-7-1">7.1 Victims feeding the first consolidation address (<code>0x9cc…c665</code>)</h3>
+<p>In addition to V1, the consolidation address <code>0x9cc…c665</code> receives direct-transfer
+drains from at least three further victim wallets. These directly observable transfers
+account for roughly $141k of the ≈$290k carried by the consolidation path (<a class="xref" href="#sec-7">§7</a>); the dollar
+figures below are rounded to the nearest thousand (<a class="xref" href="#sec-1">§1</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Victim</th>
+<th>Address</th>
+<th style="text-align: right;">Approx. drained</th>
+<th>Basis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1</td>
+<td><code>0x7eee…ac76</code></td>
+<td style="text-align: right;">≈ $16k</td>
+<td>Direct transfer (drain tx <code>0x83e8…f6f6</code>)</td>
+</tr>
+<tr>
+<td>V7</td>
+<td><code>0x48ad…5860</code></td>
+<td style="text-align: right;">≈ $90k</td>
+<td>Direct transfer to <code>0x9cc…c665</code></td>
+</tr>
+<tr>
+<td>V8</td>
+<td><code>0x1F5f…F2b0</code></td>
+<td style="text-align: right;">≈ $25k</td>
+<td>Direct transfer to <code>0x9cc…c665</code></td>
+</tr>
+<tr>
+<td>V9</td>
+<td><code>0x0446…a93f</code></td>
+<td style="text-align: right;">≈ $10k</td>
+<td>Direct transfer to <code>0x9cc…c665</code></td>
+</tr>
+</tbody>
+</table>
+<p>These are high-confidence victims: direct, unobfuscated transfers into an actor-controlled
+consolidation address. The dollar amounts are rounded, and the listed wallets are unlikely
+to be the only inbound victims (see the completeness caveat, <a class="xref" href="#sec-3-5">§3.5</a>).</p>
+<p><strong>Fan-out to CEX deposit addresses (confirmed labels, truncated values).</strong> The node
+<code>0xDE9d3C907eFc88F…</code> distributes to several KuCoin Deposit addresses and one HitBTC Deposit
+address, each receiving ≈$54.6K–$95.7K (Fig. 1). The deposit addresses are listed in full in
+<a class="xref" href="#sec-5-3">§5.3</a> and Appendix A, ready for an exchange RFI.</p>
+<h2 id="sec-8">8. Obfuscation via 1inch limit orders: recovering the beneficiary from calldata</h2>
+<p>A distinctive piece of tradecraft appears on the V2 path. By this point victim V2
+(<code>0x5c71b6d6bf72a25df3f42b1825438ae97e7a9e1f</code>) was already compromised: its ETH-side assets
+had been drained, and the actor then funded 0.02 BNB
+(tx <code>0xf7418b0a7f22a5eb93278e6198c52a8fa513dc1a265f40964f1c1e90d75203bc</code>) to cover BSC gas
+and sweep the BSC side as well. The BSC-side funds then moved
+<code>0x364b…c44</code> → <code>0x0c89…871</code> → <code>0x817f2a6c5551be49e7da0609700971595c8d979c</code> (Fig. 1, lower
+row).</p>
+<p>That last address then submitted 1inch limit-order <code>create</code> transactions on Ethereum (hence
+the Ethereum-mainnet WETH <code>makerAsset</code> below), with BSC as the destination chain into which
+the resulting value is routed toward the HTX deposit of <a class="xref" href="#sec-9">§9</a>. The order calldata
+is a tuple of <code>uint256</code> fields (Fig. 2); decoding the relevant fields from their integer form
+to addresses reveals the intended beneficiary (Fig. 3):</p>
+<ul>
+<li><code>makerOrder.maker</code> → <code>0x817f2a6c5551be49e7da0609700971595c8d979c</code> (the actor address itself), which confirms the decode is internally consistent.</li>
+<li><code>makerOrder.receiver</code> → <code>0xb3fd7de3f8242d925e0ea9e1660e395def56d9c7</code>, the recovered beneficiary address.</li>
+<li><code>makerOrder.makerAsset</code> → <code>0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2</code> (WETH).</li>
+<li><code>makerOrder.takerAsset</code> → <code>0xda0000d4000015a526378bb6fafc650cea5966f8</code>.</li>
+</ul>
+<figure><img alt="1inch order create() calldata: a makerOrder tuple with salt, maker and receiver shown as raw uint256 values." src="assets/fig02_1inch_create_calldata.png"><figcaption>Fig. 2. Decoded <code>create((uint256,…))</code> input. The <code>makerOrder</code> tuple carries <code>salt</code>, <code>maker</code> and <code>receiver</code> as <code>uint256</code>, not yet human-readable as addresses.</figcaption></figure>
+<figure><img alt="The same order fields decoded to addresses: maker 0x817f…979c, receiver 0xb3fd…6d9c7, makerAsset WETH, takerAsset 0xda00…66f8." src="assets/fig03_1inch_fields_decoded.png"><figcaption>Fig. 3. <code>maker</code>, <code>receiver</code>, <code>makerAsset</code> (WETH) and <code>takerAsset</code> recovered as addresses. The <code>receiver</code> field exposes beneficiary <code>0xb3fd7de3…56d9c7</code>, which is not visible from the transfer graph alone.</figcaption></figure>
+<p><strong>Assessment (high confidence on the decode; moderate on intent).</strong> Recovering
+<code>0xb3fd7de3…56d9c7</code> from the order <code>receiver</code> field is a deterministic decode and is treated
+as confirmed. Paired with it in the same flow is a second bridging address,
+<code>0x02DaadFA6bbD1d99B2D53fDC6Cbe0DeAab8FbB20</code>; the link was verified on-chain, and the
+supporting capture is not reproduced in this edition (<a class="xref" href="#sec-1">§1</a>). Here the 1inch
+limit order functions as an obfuscation layer: the beneficiary is encoded in calldata rather
+than appearing as a plain transfer counterparty.</p>
+<hr>
+<h1 id="part-ii">PART II: CROSS-CHAIN LAUNDERING THROUGH CEX HOT WALLETS</h1>
+<h2 id="sec-9">9. HTX hop: BSC deposit → Solana withdrawal</h2>
+<p>The two bridging addresses recovered in <a class="xref" href="#sec-8">§8</a> then deposited to HTX, in two transactions of
+≈ $27k each. The captured deposit (Fig. 4) and the matching withdrawal (Fig. 5)
+are the first CEX boundary crossed by time analysis (<a class="xref" href="#sec-6-3">§6.3</a>, steps A–B).</p>
+<figure><img alt="BscScan: 44.4279 BNB ($27,340.94) sent to HTX 72 hot wallet 0xdd3CB5…9999E0c on May-01-2026 14:45:19 UTC, tx 0xded1…4771." src="assets/fig04_htx_bnb_deposit.png"><figcaption>Fig. 4. Deposit into HTX (BSC). Tx <code>0xded15734…263094771</code>, 44.4279 BNB (≈ $27,340.94) to the HTX 72 hot wallet <code>0xdd3CB5c974601BC3974d908Ea4A86020f9999E0c</code>, 01 May 2026 14:45:19 UTC. Note: the From-address shown, <code>0x40a0b848…EAA152</code>, sits one verified pass-through hop downstream of the <a class="xref" href="#sec-8">§8</a> bridging addresses; the intermediate hop is not reproduced as a figure (<a class="xref" href="#sec-1">§1</a>).</figcaption></figure>
+<figure><img alt="Solscan: HTX Hot Wallet transfers 27,471.1699 USDT ($27,471.16) to 5vC4of…gt8eqH on Solana, 14:47:13 May-01-2026 UTC." src="assets/fig05_htx_sol_withdrawal.png"><figcaption>Fig. 5. Withdrawal from HTX (Solana). HTX Hot Wallet (co-signed) transfers 27,471.1699 USDT (≈ $27,471.16) to the actor's Solana account <code>5vC4of…gt8eqH</code>, 01 May 2026 14:47:13 UTC, about 2 min after the Fig. 4 deposit.</figcaption></figure>
+<p><strong>Assessment (moderate–high confidence).</strong> Direction, exchange labels and timing are
+<em>confirmed</em> from the explorers. The deposit-to-withdrawal pairing is strong: a ≈2-minute
+gap, the expected BSC→Solana corridor, and a close value match. The residual difference
+(BNB in ≈$27.34k against USDT out ≈$27.47k) is expected and does not weaken the pairing; it
+reflects the BNB→USDT conversion (a volatile asset valued at deposit against a stablecoin at
+withdrawal), net of fees. On the attribution side, the captured depositor reaches HTX one
+verified pass-through hop downstream of the <a class="xref" href="#sec-8">§8</a> bridging addresses (see the Fig. 4 note).</p>
+<p>The withdrawal lands at the actor's Solana account <code>5vC4of…gt8eqH</code>, which then forwards the
+funds one hop on Solana (intermediate transfer not reproduced) to <code>J1XSfoR9…hb1odK</code>. That
+address transfers the same amount (27,471.1699 USDT) into the KuCoin deposit leg (<a class="xref" href="#sec-10">§10</a>,
+Fig. 6). The exact-amount carry-through across the <code>5vC4of…</code> → <code>J1XSfoR9…</code> → KuCoin path is
+what links the HTX hop to the KuCoin hop that follows.</p>
+<h2 id="sec-10">10. KuCoin hop: Solana deposit → Tron withdrawal</h2>
+<p>The Solana-side funds were then deposited to KuCoin and withdrawn on Tron, the second CEX
+boundary, again bridged by time analysis (<a class="xref" href="#sec-6-3">§6.3</a>, steps C–D).</p>
+<figure><img alt="Solscan: 27,471.1699 USDT ($27,471.16) transferred from J1XSfo…hb1odK to KuCoin Solana hot wallet 7Vb9qE…8fgDsd, 15:10:16 May-01-2026 UTC." src="assets/fig06_kucoin_sol_deposit.png"><figcaption>Fig. 6. Deposit into KuCoin (Solana). <code>J1XSfoR9…hb1odK</code> → KuCoin Solana hot wallet <code>7Vb9qE…8fgDsd</code>, 27,471.1699 USDT (≈ $27,471.16), 01 May 2026 15:10:16 UTC, the identical amount carried over from the Fig. 5 HTX withdrawal.</figcaption></figure>
+<figure><img alt="Tronscan: Kucoin 4 (TUpHuDki…J2b9) transfers 27,469.5 USDT to TYZfYaj…ZE84, 2026-05-01 15:13:42 UTC, tx 0de81f7f…." src="assets/fig07_kucoin_tron_withdrawal.png"><figcaption>Fig. 7. Withdrawal from KuCoin (Tron). "Kucoin 4" (<code>TUpHuDkiCCmwaTZBHzvQdwWzGNm5t8J2b9</code>) → <code>TYZfYajBBCrJzMMTqnZjdGyhaGWoEaZE84</code>, 27,469.5 USDT, tx <code>0de81f7f…9c3e23b</code>, 01 May 2026 15:13:42 UTC, about 3 min after the Fig. 6 deposit, amounts matching to ≈1.67 USDT.</figcaption></figure>
+<p><strong>Assessment (high confidence on this pairing).</strong> The C→D match is among the strongest links
+in the chain: near-identical amounts (Δ ≈ 1.67 USDT, the KuCoin withdrawal fee) over a
+≈3-minute window, with the deposit amount itself carried over unchanged from the HTX
+withdrawal (<a class="xref" href="#sec-9">§9</a>). That ties the two CEX hops into a single flow. The withdrawal lands at
+<code>TYZfYajBBCrJzMMTqnZjdGyhaGWoEaZE84</code>, from which the funds move on, through one verified
+pass-through hop (not reproduced as a figure, <a class="xref" href="#sec-1">§1</a>), to the Tron consolidation address
+<code>TQLXH45i7JboiDVVF2jSGSiTFEfrUVm62m</code>.</p>
+<hr>
+<h1 id="part-iii">PART III: SECOND VICTIM CLUSTER AND TRON CONSOLIDATION</h1>
+<h2 id="sec-11">11. Pivoting back from the consolidation address: additional victims</h2>
+<h3 id="sec-11-1">11.1 Back-trace from the Tron consolidation address</h3>
+<p>With the May-01 flow resolved forward to the Tron consolidation address
+<code>TQLXH45i7JboiDVVF2jSGSiTFEfrUVm62m</code> (<a class="xref" href="#sec-10">§10</a>), the investigation pivoted and worked the same
+address backwards: instead of following new value downstream, the consolidation address's
+earlier inflows were traced in reverse to surface sibling flows. <code>TQLXH45…</code> received a
+direct transfer from the Tron staging address <code>TF1KHXD9H8VtDcS4cvrQb6d6Di4HdURcv4</code>.</p>
+<p>That staging address in turn shows three USDT inflows (Fig. 8):</p>
+<figure><img alt="Tronscan: TF1KHXD9H…HdURcv4 receives USDT inflows +19,106.5 (from OKX Hot Wallet 8), +20,687.5, +22,998.5." src="assets/fig08_tron_staging_inflows.png"><figcaption>Fig. 8. Tron staging address <code>TF1KHXD9H8VtDcS4cvrQb6d6Di4HdURcv4</code> receives USDT inflows of +19,106.5 (from OKX Hot Wallet 8), +20,687.5 and +22,998.5. The asset column <code>TR7NHq…Lj6t</code> is the USDT token contract, not a counterparty (<a class="xref" href="#sec-4">§4</a>).</figcaption></figure>
+<p>Applying the same time analysis (<a class="xref" href="#sec-6">§6</a>) to the +22,998.5 USDT inflow, the leg was reconstructed
+backwards transaction by transaction; each hop is cited here by its transaction hash rather
+than by its receiving address: the Tron receive from KuCoin, tx <code>bc2fb3904bacbee8dc0afc57022f18a73bd597fcd7a8faf5ef58e29c5135e870</code>; behind it the matching Solana-side deposit into KuCoin, tx signature <code>quhn9ReYT7s8kSiG4RPauX2z3mXuurBkYZn3u5rhYCoBX2W3MxRHFgPfm4XhnggEpxXRYdEneXUXViXknsAQaYw</code>; and behind that the originating BSC leg, tx <code>0xee348feff0ea5f2d311df3bbf2dba73ac374c8350be067d3a4963a95c27ed4a8</code> from sender <code>0xE62ad78a3CB6adEB8bf8eE3b2d8e3458bCcdFa4a</code>, the origin of the flow. This is the same BSC → Solana → KuCoin → Tron
+corridor established in <a class="xref" href="#sec-9">§9</a>–<a class="xref" href="#sec-10">§10</a>, executed a second time.</p>
+<h3 id="sec-11-2">11.2 The bridging address and victims V3–V6</h3>
+<p>Examining who bridged this leg identifies the bridging address
+<code>0xbcf1fc903a704746fea5f31cef0f4b37fbec6089</code>, which connects to four further victim
+addresses (V3–V6, <a class="xref" href="#sec-5-1">§5.1</a>):
+<code>0x8016ffb74eecde79ff6a5f52f2db1bf4da6ff978</code>,
+<code>0x5acb72f0b6dbaf17d98154b9c7f5dda0b827a508</code>,
+<code>0xb08902f0034a7acd320783aa249444143cddc85e</code>,
+<code>0x20efcc9aff67324208fbd6a3701a8fd1dcbeee90</code>.</p>
+<p>A parallel instance (dated 21 Apr 2026) again routes value through 1inch, this time via
+<code>arbitraryCalls</code> transactions in ETH (a variant of the <a class="xref" href="#sec-8">§8</a> obfuscation primitive), from the
+same bridging address (Fig. 9), feeding the Tron staging address of <a class="xref" href="#sec-11-1">§11.1</a>:</p>
+<figure><img alt="Three 1inch arbitraryCalls transactions on 2026/04/21: -9.0310 ETH ($21,014.96), -9.0000 ETH ($20,942.82), -10.0000 ETH ($23,269.80)." src="assets/fig09_1inch_eth_arbitrarycalls.png"><figcaption>Fig. 9. 1inch <code>arbitraryCalls</code> transactions, 21 Apr 2026: −9.0310 ETH (≈ $21,014.96), −9.0000 ETH (≈ $20,942.82), −10.0000 ETH (≈ $23,269.80). Txs <code>0xda41…bc30</code>, <code>0x84c3…73a0</code>, <code>0x07de…65d2</code> (truncated).</figcaption></figure>
+<p><strong>Assessment (moderate confidence).</strong> The three ETH transaction sizes (≈$21.0k / $20.9k / $23.3k)
+correspond by size to the three Tron USDT inflows (≈$19.1k / $20.7k / $23.0k): the same
+time-analysis logic across a CEX boundary, with OKX now appearing as a third exchange in the
+corridor. Two of the three matches are close (within ≈1–2%); the third (the ≈$21.0k
+transaction against the +19,106.5 inflow) is looser at ≈$1.9k and may reflect price movement
+or fees.</p>
+<p>The equivalent time-analysis legs for the remaining inflows are not restated transfer by
+transfer: the pattern is identical to the worked example in <a class="xref" href="#sec-6-3">§6.3</a>, and repeating each pairing
+would add bulk without analytical value. All recovered flows on this cluster route to the
+same Tron consolidation address.</p>
+<h2 id="sec-12">12. Tron consolidation layer</h2>
+<p>The layer above the consolidation address was surveyed, deliberately, without being pushed
+to exhaustion. Two large Tron consolidation inflows stand out, each aggregated on a
+pre-consolidation address fed directly out of the HTX hot wallet in mid-five-figure USDT
+tranches and then swept onward in a single transfer:</p>
+<figure><img alt="Tronscan list: TUdbHz1VhU…fEvbhdA receives five HTX 4 USDT inflows (~$33k–$50k) and sends 226,714.93009 USDT to TRHcAhJHkyrL6…ocnAmZU, plus a 2 USDT residue to TLntW9Z…a828ird." src="assets/fig10_preconsol_tudbhz_htx.png"><figcaption>Fig. 10. Pre-consolidation address <code>TUdbHz1VhUoHV2w9anFkz3KzKjifEvbhdA</code>: five HTX 4 USDT inflows (33,421.54 / 49,623.795243 / 48,137.049338 / 47,375.56766 / 48,158.977849) aggregated, then 226,714.93009 USDT swept to <code>TRHcAhJHkyrL6…ocnAmZU</code>, with a final 2 USDT transfer to <code>TLntW9Z…a828ird</code>. The five inflows sum to 226,716.93009 USDT, exactly the sweep plus the 2 USDT residue: the address is emptied to zero and the captured inflow set is complete.</figcaption></figure>
+<figure><img alt="Tronscan list: TKiPseUe5o…kpBV9Qb receives four HTX 4 USDT inflows and sends 149,741.488597 USDT to TTMdreb7…7GEL3xn, plus a 2 USDT residue." src="assets/fig11_preconsol_tkipse_htx.png"><figcaption>Fig. 11. Pre-consolidation address <code>TKiPseUe5o…kpBV9Qb</code>: four HTX 4 USDT inflows (32,651.91 / 37,994.329749 / 40,272.013322 / 38,825.235526) aggregated, then 149,741.488597 USDT swept to <code>TTMdreb7hhtp8BVUFzGK4bj8Lrz7GEL3xn</code>, with the same 2 USDT residue to <code>TLntW9Z…a828ird</code>. The four inflows sum to 149,743.488597 USDT, exactly the sweep plus the residue: again a complete, zeroed-out set.</figcaption></figure>
+<p><strong>Consolidation inflow (confirmed tx).</strong> The consolidation wallet received a direct transfer
+(Tron tx <code>0e98dea94bdcb12595124f9d18ed95f1d4fc73fda6aa98575cff5744dccef85f</code>) from
+<code>TRHcAhJHkyrL6vyUNDGsHvVXHE9ocnAmZU</code>, the recipient of the ≈226,714.93 USDT sweep (Fig. 10).</p>
+<p><strong>Pattern (high confidence for the pattern; provenance assessed).</strong> The structure across
+Fig. 10–11 is consistent: value cycles through HTX in mid-five-figure USDT tranches, is
+aggregated on a staging address, and is swept into the consolidation layer, each staging
+address being emptied to zero with a closing 2 USDT residue transfer to the same third
+address (<code>TLntW9Z…a828ird</code>, Fig. 10–11), most plausibly a fee or residue payment, and not
+treated as an address of interest. This is a standard layering-then-consolidation sequence. The analyst
+assesses (low–moderate confidence, consistent with <a class="xref" href="#sec-3-3">§3.3</a>) that part of the value upstream of
+these HTX-mediated inflows transited mixing or obfuscation services before reaching the
+exchange.</p>
+<p><strong>Boundary of this trace (explicit).</strong> The victims behind these two inflow sets, roughly
+226.7k and 149.7k USDT, were <strong>not</strong> enumerated. A preliminary reverse search did not
+surface additional victim wallets, and, consistent with the bounded scope set out in <a class="xref" href="#sec-3-5">§3.5</a>,
+this leg was recorded as an open line of inquiry (<a class="xref" href="#sec-15">§15</a>) rather than pursued to exhaustion.
+Given the scale of the amounts and the repetition of the campaign pattern, the analyst
+assesses it is likely that further drained users sit behind these flows; identifying them is
+the highest-value continuation of this work (<a class="xref" href="#sec-16">§16</a>).</p>
+<hr>
+<h1 id="part-iv">PART IV: ASSESSMENT, RED FLAGS AND RECOMMENDATIONS</h1>
+<h2 id="sec-13">13. Findings and overall assessment</h2>
+<ol>
+<li><strong>A single threat-actor cluster drained multiple EVM wallets.</strong> V1 and V7–V9 reached the
+   first consolidation <code>0x9cc…c665</code> by direct transfer (≈$141k enumerated within ≈$290k
+   aggregate inbound; high confidence), V2 arrived by a separate path (high confidence), and
+   V3–V6 plus others remain leads. The proceeds were laundered through a repeatable
+   cross-chain corridor (BSC/EVM → Solana → Tron). <em>Confidence: moderate-high for the
+   methodology; common control across all hops is moderate and is the principal item for
+   further corroboration.</em></li>
+<li><strong>CEX hot wallets serve as cross-chain "mixers".</strong> HTX and KuCoin (with OKX and HitBTC
+   seen peripherally) take a deposit on one chain and pay out on another, defeating naive
+   graph tracing. <em>Confidence: high (explorer labels confirm the deposit and withdrawal
+   endpoints).</em></li>
+<li><strong>Time analysis bridges the CEX gaps.</strong> Size-and-timestamp correlation reconstructs the
+   deposit→withdrawal joins; the strongest pairing (<a class="xref" href="#sec-10">§10</a>) matches to ≈1.67 USDT over a
+   three-minute window, and the remainder are moderate to moderate–high. <em>Confidence: as
+   stated per hop.</em></li>
+<li><strong>1inch order flows serve as an obfuscation primitive.</strong> Beneficiary addresses are
+   encoded in limit-order <code>create</code> calldata (<a class="xref" href="#sec-8">§8</a>), with <code>arbitraryCalls</code> used on a parallel
+   leg (<a class="xref" href="#sec-11-2">§11.2</a>). <em>Confidence: high (deterministic decode).</em></li>
+<li><strong>Consolidation occurs on Tron in USDT</strong>, with mid-five-figure tranches aggregated into
+   six-figure sweeps (<a class="xref" href="#sec-12">§12</a>). <em>Confidence: high for the pattern; the two captured sweeps
+   reconcile internally to the cent (Fig. 10–11). The victims behind these inflows were
+   deliberately not enumerated (<a class="xref" href="#sec-12">§12</a>) and remain an open line of inquiry.</em></li>
+</ol>
+<p><strong>On a campaign loss total.</strong> No single reconciled figure is asserted. The consolidation
+path anchored at <code>0x9cc…c665</code> alone carries ≈ $290k (assessed likely stolen; ≈$141k
+of it enumerated by direct transfer, <a class="xref" href="#sec-7-1">§7.1</a>); the separate V2 path adds ≈$54k (<a class="xref" href="#sec-8">§8</a>), bringing
+this cluster to roughly $345k, and the Tron layer shows two further large consolidation
+inflows (≈226.7k and ≈149.7k USDT, <a class="xref" href="#sec-12">§12</a>). These figures cannot simply be summed: doing so
+would double-count across the fan-out (Fig. 1), the CEX hops and the consolidation layer, and
+the trace is not exhaustive (<a class="xref" href="#sec-3-5">§3.5</a>). A reconciled campaign total is an explicit open item
+(<a class="xref" href="#sec-15">§15</a>).</p>
+<h2 id="sec-14">14. Indicators / red flags (FATF-aligned framing)</h2>
+<p>The following are consistent with recognized money-laundering typologies for virtual
+assets (FATF red-flag indicators relating to transactions, anonymity and source of funds):</p>
+<ul>
+<li><strong>Rapid, sequential cross-chain movement</strong> immediately after receipt, with no economic
+  purpose other than obfuscation (chain-hopping BSC→Solana→Tron).</li>
+<li><strong>Use of CEX deposit and withdrawal on different chains</strong> to break traceability (HTX,
+  KuCoin).</li>
+<li><strong>Structuring</strong> of value into repeated mid-five-figure tranches (~$27k, ~$37k–$50k)
+  before consolidation.</li>
+<li><strong>Calldata-obfuscated beneficiaries</strong> via 1inch limit orders and <code>arbitraryCalls</code>
+  (<a class="xref" href="#sec-8">§8</a>, <a class="xref" href="#sec-11-2">§11.2</a>).</li>
+<li><strong>Layering through multiple pass-through addresses</strong> with negligible residual balances
+  (Fig. 1).</li>
+<li><strong>Suspected use of mixing or obfuscation services</strong> for a portion of the value (assessed;
+  not fully resolved within this report's time budget, <a class="xref" href="#sec-3-5">§3.5</a>).</li>
+</ul>
+<h2 id="sec-15">15. Open lines of inquiry</h2>
+<p>The items below are investigative continuations and preconditions for external action
+(exchange RFIs, victim notification, referral). They qualify the <em>completeness</em> of the
+trace, not the findings in <a class="xref" href="#sec-13">§13</a>.</p>
+<ol>
+<li><strong>Victims behind the Tron consolidation inflows (<a class="xref" href="#sec-12">§12</a>).</strong> The HTX-fed tranches
+   aggregated on <code>TUdbHz1…</code> and <code>TKiPse…</code> (≈226.7k and ≈149.7k USDT) were not traced back
+   to their source victims; a preliminary reverse search surfaced none. Deliberately left
+   open (<a class="xref" href="#sec-3-5">§3.5</a>); the highest-value continuation of this investigation.</li>
+<li><strong>Common control across hops.</strong> Common control of the actor-side addresses across the
+   full corridor is held at moderate confidence (<a class="xref" href="#sec-13">§13</a>). The exchanges' internal ledger and
+   KYC records (<a class="xref" href="#sec-16">§16</a>, RFI) are the most direct route to corroboration.</li>
+<li><strong>Reconciled campaign total.</strong> The ≈$290k aggregate (≈$141k enumerated) is evidenced at
+   the first consolidation <code>0x9cc…c665</code> alone (<a class="xref" href="#sec-7-1">§7.1</a>), with ≈$54k more on the V2 path (<a class="xref" href="#sec-8">§8</a>);
+   a reconciled, double-count-free figure across the second cluster and the Tron
+   consolidation layer has not been built.</li>
+<li><strong>Identifier expansion for the RFI package.</strong> The V2-path exchange deposit addresses
+   (<a class="xref" href="#sec-5-3">§5.3</a>), one Tron address still truncated as captured (<code>TKiPseUe5o…</code>, <a class="xref" href="#sec-5-4">§5.4</a>), one Solana
+   account (<code>5vC4of…</code>, <a class="xref" href="#sec-5-5">§5.5</a>) and the Fig. 9 transaction hashes should be expanded to full
+   form so that every identifier in an outgoing RFI is cited in full.</li>
+<li><strong>Initial intrusion vector.</strong> Assessed most likely private-key compromise (cross-chain
+   sweeps of the same victim wallets; <a class="xref" href="#sec-8">§8</a>, <a class="xref" href="#sec-3-5">§3.5</a>); held at moderate confidence and out of
+   on-chain scope. Not forensically confirmed.</li>
+</ol>
+<h2 id="sec-16">16. Recommendations and next steps</h2>
+<ol>
+<li><strong>Exchange RFIs and law-enforcement referral.</strong> Prepare requests to KuCoin, HTX and OKX
+   keyed to the confirmed deposit and withdrawal txs and timestamps (<a class="xref" href="#sec-6-3">§6.3</a>, <a class="xref" href="#sec-10">§10</a>, <a class="xref" href="#sec-12">§12</a>)
+   and to the deposit addresses in <a class="xref" href="#sec-5-3">§5.3</a>. The exchanges hold the internal ledger entries that
+   turn each time-analysis <em>inference</em> into a <em>confirmed</em> join, and the KYC that can
+   identify the beneficiary.</li>
+<li><strong>Victim notification.</strong> For V2–V9, confirm the drains where still unconfirmed and
+   notify the wallet owners.</li>
+<li><strong>Complete the identifier expansion</strong> (<a class="xref" href="#sec-15">§15</a>, item 4) so that every address and
+   transaction cited in the RFI package appears in full form.</li>
+<li><strong>Watch-listing.</strong> Add the consolidation and pre-consolidation Tron addresses (<a class="xref" href="#sec-5-4">§5.4</a>) and
+   the bridger <code>0xbcf1…6089</code> to monitoring for further movement and new victims.</li>
+<li><strong>Independent re-derivation.</strong> Have a second analyst reproduce the strongest pairing
+   (<a class="xref" href="#sec-10">§10</a>) and at least one moderate pairing (<a class="xref" href="#sec-9">§9</a> or <a class="xref" href="#sec-11-2">§11.2</a>) from primary explorers.</li>
+</ol>
+<hr>
+<h1 id="part-appendices">APPENDICES</h1>
+<h2 id="sec-17">17. Appendix A: Full identifier list</h2>
+<p><em>Identifiers confirmed in full are reproduced below without truncation; entries still
+truncated as captured are noted and tracked in <a class="xref" href="#sec-15">§15</a>.</em></p>
+<p><strong>Victims (full):</strong>
+<code>0x7eee669d684b6096a6ad67e993f7d384ad02ac76</code> (V1);
+<code>0x5c71b6d6bf72a25df3f42b1825438ae97e7a9e1f</code> (V2);
+<code>0x8016ffb74eecde79ff6a5f52f2db1bf4da6ff978</code> (V3);
+<code>0x5acb72f0b6dbaf17d98154b9c7f5dda0b827a508</code> (V4);
+<code>0xb08902f0034a7acd320783aa249444143cddc85e</code> (V5);
+<code>0x20efcc9aff67324208fbd6a3701a8fd1dcbeee90</code> (V6);
+<code>0x48ad22b0114b00d972c9ab51a41558fc5dd65860</code> (V7, ≈ $90k);
+<code>0x1F5fEB64834647585E201e1bC1A0Ab78751cF2b0</code> (V8, ≈ $25k);
+<code>0x0446219d289518868e76d08cee846804ae01a93f</code> (V9, ≈ $10k).</p>
+<p><strong>Actor / pass-through (full where known):</strong>
+<code>0x9cc0831db1b224fd675a21ac0d0adda82631c665</code>;
+<code>0x364be8180cc96eb43da4973f888ce29cc4fb8c44</code>;
+<code>0x0c893616d363d81db393314cfdb85a1d54920871</code>;
+<code>0x817f2a6c5551be49e7da0609700971595c8d979c</code>;
+<code>0xb3fd7de3f8242d925e0ea9e1660e395def56d9c7</code>;
+<code>0x02DaadFA6bbD1d99B2D53fDC6Cbe0DeAab8FbB20</code>;
+<code>0xbcf1fc903a704746fea5f31cef0f4b37fbec6089</code>;
+<code>0xE62ad78a3CB6adEB8bf8eE3b2d8e3458bCcdFa4a</code>;
+<code>0x40a0b848888B04Fc0C0172e24AB423f128eAA152</code> <em>(pass-through depositor into HTX, <a class="xref" href="#sec-9">§9</a>)</em>.</p>
+<p><strong>Exchange (full where known):</strong>
+KuCoin deposit, V1 fan-out (EVM):
+<code>0x544B7c476E60586534992310a60B11230e3C5fFe</code>,
+<code>0x3F5a18B40dFbD3b13ceA7bd4c133151BDD5602E6</code>,
+<code>0x827CDDc7BCa77fD4fc97E2F66bD539493cD550d1</code>,
+<code>0xb555278E27DD3D4FfeCD2b3A032803a829B3acE3</code>,
+<code>0x5c5BaBd61840B684ce9B11d346ee02748D4b5bdD</code>,
+<code>0x7a5eBF198C5EC99e67937689aEC581bB079b0eAd</code>;
+HitBTC deposit, V1 fan-out (EVM) <code>0xBaB24f2AC1E71Bbcf6336663024E6dD9EEcab135</code>;
+KuCoin "Kucoin 4" (Tron) <code>TUpHuDkiCCmwaTZBHzvQdwWzGNm5t8J2b9</code>;
+USDT-TRON token contract (excluded as participant) <code>TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t</code>.</p>
+<p><strong>Tron consolidation/staging (full where known):</strong>
+<code>TQLXH45i7JboiDVVF2jSGSiTFEfrUVm62m</code>;
+<code>TYZfYajBBCrJzMMTqnZjdGyhaGWoEaZE84</code>;
+<code>TF1KHXD9H8VtDcS4cvrQb6d6Di4HdURcv4</code>;
+<code>TRHcAhJHkyrL6vyUNDGsHvVXHE9ocnAmZU</code>;
+<code>TTMdreb7hhtp8BVUFzGK4bj8Lrz7GEL3xn</code>;
+<code>TUdbHz1VhUoHV2w9anFkz3KzKjifEvbhdA</code>.
+<em>Truncated as captured (<a class="xref" href="#sec-15">§15</a>):</em> <code>TKiPseUe5o…kpBV9Qb</code>.</p>
+<p><strong>Solana (full where known):</strong>
+<code>J1XSfoR9Ww9tzACSyHXjiJc8MikCWfVQFmG2XMhb1odK</code> (actor wallet, HTX→KuCoin leg);
+<code>5vC4of…gt8eqH</code> <em>(truncated as captured: actor Solana account, receiver of the HTX withdrawal, <a class="xref" href="#sec-15">§15</a>)</em>.</p>
+<p><strong>Transactions (full where known):</strong>
+<code>0x83e84825464b53e83e1102a399a779cf6797c38f99191b6cda2387cf6409f6f6</code> (V1 drain);
+<code>0xf7418b0a7f22a5eb93278e6198c52a8fa513dc1a265f40964f1c1e90d75203bc</code> (gas to V2);
+<code>0xded15734c68b8651fc11151a58b55388416b48b3b36a5b14f4fd8ce263094771</code> (HTX BNB deposit, Fig. 4);
+<code>3eRGhqNeBgmyhL8U87novCinLWpedxzWMStpv5J7dgPRJweu1fKSJyV4ieFRo4yXTVmFnegLjQpscHsV1PV6kSa8</code> (HTX→Solana USDT withdrawal, May-01 chain, Fig. 5);
+<code>3acMuL1xj5aZ6m9QUKnTm9t1YTBN5q5g43PuVEJ6sHjVfvaHrcnZvPCrmfR53LVF6DwzZcf5Wxd2og73r1iWfQ54</code> (Solana→KuCoin USDT deposit, May-01 chain, Fig. 6);
+<code>0de81f7f5e77c69b10437011636b60c7699de88e6f05831232b9e438f9c3e23b</code> (KuCoin Tron withdrawal, May-01 chain, Fig. 7);
+<code>0xee348feff0ea5f2d311df3bbf2dba73ac374c8350be067d3a4963a95c27ed4a8</code> (BSC, additional leg);
+<code>quhn9ReYT7s8kSiG4RPauX2z3mXuurBkYZn3u5rhYCoBX2W3MxRHFgPfm4XhnggEpxXRYdEneXUXViXknsAQaYw</code> (Solana, KuCoin deposit leg, second cluster, <a class="xref" href="#sec-11-1">§11.1</a>);
+<code>bc2fb3904bacbee8dc0afc57022f18a73bd597fcd7a8faf5ef58e29c5135e870</code> (Tron receive, additional cluster);
+<code>0e98dea94bdcb12595124f9d18ed95f1d4fc73fda6aa98575cff5744dccef85f</code> (consolidation inflow).</p>
+<h2 id="sec-18">18. Appendix B: Time-analysis pairings (evidence table)</h2>
+<table>
+<thead>
+<tr>
+<th>Pairing</th>
+<th>Deposit (chain, amount, UTC)</th>
+<th>Withdrawal (chain, amount, UTC)</th>
+<th>Δt</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTX (<a class="xref" href="#sec-9">§9</a>)</td>
+<td>BSC, 44.4279 BNB ≈$27,341, 01 May 14:45:19</td>
+<td>Solana, 27,471.17 USDT ≈$27,471, 01 May 14:47:13</td>
+<td>≈2 min</td>
+<td>Moderate–High</td>
+</tr>
+<tr>
+<td>KuCoin (<a class="xref" href="#sec-10">§10</a>)</td>
+<td>Solana, 27,471.17 USDT, 01 May 15:10:16</td>
+<td>Tron, 27,469.5 USDT, 01 May 15:13:42</td>
+<td>≈3 min</td>
+<td>High</td>
+</tr>
+<tr>
+<td>1inch→staging (<a class="xref" href="#sec-11-2">§11.2</a>)</td>
+<td>ETH <code>arbitraryCalls</code> ≈$21.0k/$20.9k/$23.3k, 21 Apr</td>
+<td>Tron USDT +19,106.5/+20,687.5/+22,998.5</td>
+<td>n/a (size match)</td>
+<td>Moderate</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sec-19">19. Appendix C: Source-capture → figure mapping</h2>
+<table>
+<thead>
+<tr>
+<th>Figure</th>
+<th>File (in <code>assets/</code>)</th>
+<th>Source capture (in <code>source_captures/</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fig. 1</td>
+<td><code>fig01_arkham_master_flow.png</code></td>
+<td><code>src_fig01_arkham_master_flow.png</code></td>
+</tr>
+<tr>
+<td>Fig. 2</td>
+<td><code>fig02_1inch_create_calldata.png</code></td>
+<td><code>src_fig02_1inch_create_calldata.png</code></td>
+</tr>
+<tr>
+<td>Fig. 3</td>
+<td><code>fig03_1inch_fields_decoded.png</code></td>
+<td><code>src_fig03_1inch_fields_decoded.png</code></td>
+</tr>
+<tr>
+<td>Fig. 4</td>
+<td><code>fig04_htx_bnb_deposit.png</code></td>
+<td><code>src_fig04_htx_bnb_deposit.png</code></td>
+</tr>
+<tr>
+<td>Fig. 5</td>
+<td><code>fig05_htx_sol_withdrawal.png</code></td>
+<td><code>src_fig05_htx_sol_withdrawal.jpeg</code></td>
+</tr>
+<tr>
+<td>Fig. 6</td>
+<td><code>fig06_kucoin_sol_deposit.png</code></td>
+<td><code>src_fig06_kucoin_sol_deposit.jpeg</code></td>
+</tr>
+<tr>
+<td>Fig. 7</td>
+<td><code>fig07_kucoin_tron_withdrawal.png</code></td>
+<td><code>src_fig07_kucoin_tron_withdrawal.jpeg</code></td>
+</tr>
+<tr>
+<td>Fig. 8</td>
+<td><code>fig08_tron_staging_inflows.png</code></td>
+<td><code>src_fig08_tron_staging_inflows.png</code></td>
+</tr>
+<tr>
+<td>Fig. 9</td>
+<td><code>fig09_1inch_eth_arbitrarycalls.png</code></td>
+<td><code>src_fig09_1inch_eth_arbitrarycalls.png</code></td>
+</tr>
+<tr>
+<td>Fig. 10</td>
+<td><code>fig10_preconsol_tudbhz_htx.png</code></td>
+<td><code>src_fig10_preconsol_tudbhz_htx.png</code></td>
+</tr>
+<tr>
+<td>Fig. 11</td>
+<td><code>fig11_preconsol_tkipse_htx.png</code></td>
+<td><code>src_fig11_preconsol_tkipse_htx.png</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>End of report. This document is investigative work product; open lines of inquiry are
+collected in <a class="xref" href="#sec-15">§15</a>.</em></p>
+</body></html>

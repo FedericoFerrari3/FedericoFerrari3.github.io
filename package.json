@@ -1,0 +1,19 @@
+{
+  "name": "federico-ferrari-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.0.6"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.3.0"
+  }
+}
