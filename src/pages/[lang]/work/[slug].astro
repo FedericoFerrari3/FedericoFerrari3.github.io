@@ -69,7 +69,16 @@ const report = loadReport(slug);
             <nav>
               <ol>
                 {report.toc.map((item) => (
-                  <li><a href={`#${item.id}`}>{item.label}</a></li>
+                  <li>
+                    <a href={`#${item.id}`} class={item.bold ? 'toc-part' : undefined}>{item.label}</a>
+                    {item.children && item.children.length > 0 && (
+                      <ol class="toc-sub">
+                        {item.children.map((child) => (
+                          <li><a href={`#${child.id}`}>{child.label}</a></li>
+                        ))}
+                      </ol>
+                    )}
+                  </li>
                 ))}
               </ol>
             </nav>

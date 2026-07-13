@@ -19,7 +19,7 @@ const reportSources = import.meta.glob('../../public/reports/*.html', {
   eager: true,
 }) as Record<string, string>;
 
-export type TocItem = { id: string; label: string };
+export type TocItem = { id: string; label: string; bold?: boolean; children?: TocItem[] };
 export type RenderedReport = { html: string; toc: TocItem[]; readingMinutes: number };
 
 /** File name (no extension) of the generated report HTML in casestudy/, per slug. */
@@ -76,8 +76,38 @@ function decodeEntities(s: string): string {
     .replace(/&#x([0-9a-fA-F]+);/g, (_m, n) => String.fromCodePoint(parseInt(n, 16)));
 }
 
-/** Extract h2[id] headings for the table of contents (top-level report sections). */
+/** Build the sidebar TOC by mirroring the report's own inline "Contents" list, so the
+ *  site TOC keeps the report's hierarchy: bold PART group entries with their sections
+ *  nested underneath (two levels, matching how the owner structures the reports).
+ *  Falls back to a flat h2 scan if a future report ships without an inline Contents. */
 function buildToc(body: string): TocItem[] {
+  const block = body.match(/<h2\b[^>]*\bid="contents"[^>]*>[\s\S]*?(?=<h2\b)/i);
+  if (block) {
+    const toc: TocItem[] = [];
+    let group: TocItem | null = null;
+    // Matches either a list item (optionally opening a nested <ul>) or a closing </ul>.
+    const re = /<li>\s*<a href="#([^"]+)">([\s\S]*?)<\/a>\s*(<ul>)?|<\/ul>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(block[0]))) {
+      if (m[1] === undefined) {
+        group = null; // </ul>: closes the current nested group (or the outer list)
+        continue;
+      }
+      const item: TocItem = {
+        id: m[1],
+        label: decodeEntities(m[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()),
+      };
+      if (/<strong>/i.test(m[2])) item.bold = true;
+      if (group) {
+        (group.children ??= []).push(item);
+      } else {
+        toc.push(item);
+      }
+      if (m[3]) group = item; // this entry opens a nested list: children follow
+    }
+    if (toc.length > 0) return toc;
+  }
+  // Fallback: flat list of h2[id] section headings.
   const toc: TocItem[] = [];
   const re = /<h2\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/gi;
   let m: RegExpExecArray | null;
