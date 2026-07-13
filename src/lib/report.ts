@@ -100,9 +100,11 @@ export function loadReport(slug: string): RenderedReport {
   const base = REPORT_FILE[slug];
   if (!base) throw new Error(`No report file mapping for slug "${slug}"`);
   const body = readBody(rawFor(base));
-  // Drop the report's own inline "Contents" list block (we render a styled TOC instead).
+  // Drop the report's own inline "Contents" block (we render a styled TOC instead).
+  // The block can hold nested <ul>s (Part I / Part II with sub-items), so cut everything
+  // from the "Contents" heading up to the next <h2 (the first real section heading).
   const withoutInlineToc = body.replace(
-    /<h2\b[^>]*\bid="contents"[^>]*>[\s\S]*?<\/h2>\s*(?:<ul>[\s\S]*?<\/ul>)?/i,
+    /<h2\b[^>]*\bid="contents"[^>]*>[\s\S]*?(?=<h2\b)/i,
     '',
   );
   return {
