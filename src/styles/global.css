@@ -387,6 +387,15 @@ main { flex: 1 0 auto; overflow-x: clip; }
    ========================================================================= */
 .report-shell { padding: 1rem 0 4rem; }
 .report-layout { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.6rem; align-items: start; }
+/* Align the report text with the intro sections above it: shift the whole grid left so
+   the TOC hangs in the page margin. translateX (not margin) keeps the .container auto-
+   centering intact. Full shift is the TOC rail (15rem + 2.6rem gap); it is capped by the
+   free margin the viewport actually has ((100vw - maxw)/2), so the TOC never goes
+   off-screen — on narrower desktops the shift shrinks progressively, below --maxw it is 0
+   (original side-by-side layout). Full text alignment kicks in from ~1600px viewports. */
+@media (min-width: 961px) {
+  .report-layout { transform: translateX(clamp(-17.6rem, calc((var(--maxw) - 100vw) / 2), 0rem)); }
+}
 
 /* sticky table of contents */
 .report-toc { position: sticky; top: 84px; align-self: start; }
