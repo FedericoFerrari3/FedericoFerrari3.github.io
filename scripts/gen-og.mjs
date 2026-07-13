@@ -51,6 +51,16 @@ const CARDS = [
     body: 'Wallet clustering, fund-flow reconstruction and market analysis, for investigations and compliance, investment research, risk and market surveillance.',
   },
   {
+    file: 'og-work.png', // /work index (case-studies listing)
+    variant: 'case',
+    kicker: 'Selected Work',
+    topRight: 'Federico Ferrari',
+    title: 'On-Chain Investigation Case Studies',
+    subtitle: 'Published forensic reports, documented to intelligence-grade standards',
+    body: 'A market-manipulability assessment of a token, and a multi-victim wallet-drainer with cross-chain laundering. Each case links to the full report and shows the tradecraft behind it.',
+    tags: ['Wallet clustering', 'Cross-chain tracing', 'Manipulation detection'],
+  },
+  {
     file: 'og-superfortune.png',
     variant: 'case',
     kicker: 'Case Study',
@@ -167,6 +177,10 @@ function html(card) {
 }
 
 const run = async () => {
+  // Optional CLI filter: `node scripts/gen-og.mjs og-work.png` renders only the
+  // named card(s), leaving the other committed assets untouched. No args = all.
+  const only = process.argv.slice(2);
+  const cards = only.length ? CARDS.filter((c) => only.includes(c.file)) : CARDS;
   const browser = await puppeteer.launch({
     executablePath: CHROME,
     headless: 'new',
@@ -179,7 +193,7 @@ const run = async () => {
     ],
   });
   try {
-    for (const card of CARDS) {
+    for (const card of cards) {
       const page = await browser.newPage();
       await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
       await page.setContent(html(card), { waitUntil: 'networkidle0' });

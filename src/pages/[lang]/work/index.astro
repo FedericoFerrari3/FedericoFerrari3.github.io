@@ -12,7 +12,7 @@ export function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const t = useTranslations(locale);
 ---
-<Base locale={locale} title={t('work.title')} description={t('work.sub')} path="/work">
+<Base locale={locale} title={t('work.title')} description={t('work.sub')} path="/work" ogImage="/og/og-work.png">
   <section class="page-head">
     <div class="container">
       <p class="eyebrow">{t('site.tagline')}</p>
