@@ -3,7 +3,7 @@
 Bilingual (EN/IT) portfolio site for an independent on-chain investigator. Built with
 [Astro](https://astro.build), deployed free on GitHub Pages.
 
-Live (once deployed): **https://federicoferrari.github.io**
+Live: **https://federicoferrari3.github.io**
 
 ## Stack & structure
 
@@ -41,16 +41,17 @@ npm run preview    # serve the production build
 
 ## Deploy (GitHub Pages)
 
-1. Create a **public** repo named `federicoferrari.github.io` (repo name must equal
-   `<your-username>.github.io` so the site serves at the domain root).
-2. Push this `port/` folder as the repo root.
-3. Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. The workflow in `.github/workflows/deploy.yml` builds and deploys on every push to `main`.
+The repo is `federicoferrari3/federicoferrari3.github.io` with **Settings → Pages → Source:
+GitHub Actions**. The workflow in `.github/workflows/deploy.yml` (Node 22) builds and deploys
+on every push to `main` — publishing = getting a commit onto `main`.
+
+**Maintainer note:** on the maintainer's machine `git push` is not available; pushes go
+through the API helper script documented in the private project docs (`docs/PROJECT.md`,
+§Deploy) one level above this repo.
 
 ### Changing the GitHub handle
 
-The handle `federicoferrari` is a placeholder. If you register a different one, change it in
-**two** places, then rebuild:
+If the handle ever changes, update it in **two** places, then rebuild:
 
 - `src/config.ts` → `SITE_HANDLE`
 - `astro.config.mjs` → `site`
