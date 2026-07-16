@@ -189,13 +189,13 @@ export const story: Record<Locale, string[]> = {
 // About-page skills groups (DRY with CV Skills section).
 export const skillsGroups: Record<Locale, { label: string; items: string }[]> = {
   en: [
-    { label: 'Investigation & analysis', items: 'Blockchain forensics · wallet clustering & entity attribution · cross-chain fund tracing · transaction monitoring · market-structure, liquidity & derivatives analysis · market-manipulation detection · behavioral / time analysis' },
+    { label: 'Investigation & analysis', items: 'Blockchain forensics · wallet clustering & entity attribution · cross-chain fund tracing · transaction monitoring · market-structure, liquidity & derivatives analysis · behavioral / time analysis' },
     { label: 'Compliance framing', items: 'AML · FATF red-flag typologies · ICD 203 confidence standards' },
     { label: 'Tools & data', items: 'Arkham · DeBank · Cielo · all base explorers (Etherscan, Solscan, BscScan, Tronscan) · Dune / SQL · Python (AI-assisted tooling & automation)' },
     { label: 'Chains', items: 'All EVM chains · Solana · Tron · Bitcoin' },
   ],
   it: [
-    { label: 'Investigazione & analisi', items: 'Blockchain forensics · wallet clustering & entity attribution · cross-chain fund tracing · transaction monitoring · analisi di struttura di mercato, liquidità & derivati · rilevamento di manipolazione di mercato · analisi comportamentale / temporale' },
+    { label: 'Investigazione & analisi', items: 'Blockchain forensics · wallet clustering & entity attribution · cross-chain fund tracing · transaction monitoring · analisi di struttura di mercato, liquidità & derivati · analisi comportamentale / temporale' },
     { label: 'Ambito compliance', items: 'AML · tipologie di red flag FATF · standard di confidenza ICD 203' },
     { label: 'Strumenti & dati', items: 'Arkham · DeBank · Cielo · tutti gli explorer base (Etherscan, Solscan, BscScan, Tronscan) · Dune / SQL · Python (tooling assistito da AI e automazione)' },
     { label: 'Chain', items: 'Tutte le chain EVM · Solana · Tron · Bitcoin' },
